@@ -1,0 +1,231 @@
+/* Importing Tailwind CSS via CDN (use npm for production) */
+@import url('https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css');
+
+/* Custom styles for the Django scheduling app */
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #f3f4f6;
+    color: #1f2937;
+    margin: 0;
+    padding: 0;
+}
+
+.container.my-5 {
+    max-width: 1400px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Page Title */
+h1.mb-4 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1e40af;
+    text-align: center;
+}
+
+/* Filters Form */
+form.row.g-3 {
+    background: #ffffff;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+}
+
+.form-label {
+    font-weight: 600;
+    color: #374151;
+}
+
+.form-select {
+    border-radius: 8px;
+    padding: 0.5rem;
+    font-size: 0.9rem;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.form-select:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+/* Course Selection Table */
+.table-responsive {
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    background: #ffffff;
+    overflow-x: auto;
+}
+
+.table.table-dark {
+    background: #ffffff;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.table th {
+    background-color: #3b82f6;
+    color: white;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+    padding: 12px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.table td {
+    background-color: #ffffff;
+    color: #1f2937;
+    font-size: 0.85rem;
+    padding: 12px;
+    vertical-align: middle;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: #f9fafb;
+}
+
+.table tr:hover td {
+    background-color: #f1f5f9;
+}
+
+/* Selected courses in the schedule */
+.table td:not(:empty):not(:first-child) {
+    background-color: #dbeafe;
+    color: #1e40af;
+    font-weight: 500;
+}
+
+/* Buttons */
+.btn {
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn-primary.seleccionar-btn {
+    background-color: #10b981;
+    border-color: #10b981;
+    padding: 6px 12px;
+}
+
+.btn-primary.seleccionar-btn:hover:not(:disabled) {
+    background-color: #059669;
+    border-color: #059669;
+    transform: translateY(-1px);
+}
+
+.btn-primary.seleccionar-btn:disabled {
+    background-color: #6b7280;
+    border-color: #6b7280;
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.btn-danger {
+    padding: 8px 16px;
+}
+
+.btn-danger:hover {
+    background-color: #dc2626;
+    border-color: #dc2626;
+}
+
+.btn-primary:not(.seleccionar-btn) {
+    background-color: #3b82f6;
+    border-color: #3b82f6;
+}
+
+.btn-primary:not(.seleccionar-btn):hover {
+    background-color: #1e40af;
+    border-color: #1e40af;
+}
+
+/* Schedule Section (#horario) */
+#horario {
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+#horario .table-responsive {
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+#horario .list-group-item {
+    border: none;
+    border-radius: 8px;
+    margin-bottom: 0.5rem;
+    background-color: #ffffff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+#horario .list-group-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Pagination */
+.pagination {
+    margin-top: 1.5rem;
+}
+
+.page-link {
+    border-radius: 8px;
+    margin: 0 4px;
+    color: #3b82f6;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.page-link:hover {
+    background-color: #3b82f6;
+    color: white;
+}
+
+.page-item.disabled .page-link {
+    color: #6b7280;
+    background-color: #f3f4f6;
+}
+
+/* Export Buttons */
+.mb-3 .btn {
+    margin-right: 1rem;
+    font-size: 0.9rem;
+    padding: 10px 20px;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .container.my-5 {
+        padding: 1rem;
+    }
+
+    h1.mb-4 {
+        font-size: 1.5rem;
+    }
+
+    .form-select {
+        font-size: 0.85rem;
+        padding: 0.4rem;
+    }
+
+    .table th, .table td {
+        padding: 8px;
+        font-size: 0.75rem;
+    }
+
+    .btn-sm {
+        font-size: 0.75rem;
+        padding: 4px 8px;
+    }
+
+    #horario .table-responsive {
+        max-height: 400px;
+    }
+}
