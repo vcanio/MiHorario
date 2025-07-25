@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-bvkxxu_-s=w5f2q(-xaqq8n#1*0+(gy&t73ifwyyzbv33&w576
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'horarioapp.onrender.com']
 
 
 
