@@ -41,16 +41,22 @@ function generarHoras(inicio, fin) {
 }
 
 function haySolapamiento(nuevosHorarios) {
-    return Object.values(seleccionadas).some(({ horarios }) =>
-        horarios.some(existente =>
-            nuevosHorarios.some(nuevo =>
-                nuevo.dia === existente.dia &&
-                parseTime(nuevo.inicio) < parseTime(existente.fin) &&
-                parseTime(nuevo.fin) > parseTime(existente.inicio)
-            )
-        )
-    );
+    for (const [sigla, { horarios, seccion, nombre }] of Object.entries(seleccionadas)) {
+        for (const existente of horarios) {
+            for (const nuevo of nuevosHorarios) {
+                if (
+                    nuevo.dia === existente.dia &&
+                    parseTime(nuevo.inicio) < parseTime(existente.fin) &&
+                    parseTime(nuevo.fin) > parseTime(existente.inicio)
+                ) {
+                    return { sigla, seccion, nombre };
+                }
+            }
+        }
+    }
+    return null;
 }
+
 
 function parseTime(hora) {
     const [h, m] = hora.split(':').map(Number);
@@ -211,8 +217,9 @@ document.querySelectorAll('.seleccionar-btn').forEach(btn => {
             quitarAsignatura(sigla);
         }
 
-        if (haySolapamiento(horarios)) {
-            alert("Esta sección se solapa con otra.");
+        const conflicto = haySolapamiento(horarios);
+        if (conflicto) {
+            alert(`Esta sección se solapa con ${conflicto.nombre} (sección ${conflicto.seccion}).`);
             return;
         }
 
@@ -239,3 +246,31 @@ document.querySelectorAll('.seleccionar-btn').forEach(btn => {
 });
 
 actualizarHorario();
+
+function mostrarModal({ titulo = "", mensaje = "", botones = [] }) {
+    const overlay = document.getElementById("modal-overlay");
+    const title = document.getElementById("modal-title");
+    const msg = document.getElementById("modal-message");
+    const buttonsContainer = document.getElementById("modal-buttons");
+
+    title.textContent = titulo;
+    msg.innerHTML = mensaje;
+    buttonsContainer.innerHTML = "";
+
+    botones.forEach(({ texto, estilo = "", cerrar = true, callback }) => {
+        const btn = document.createElement("button");
+        btn.className = `px-4 py-2 rounded ${estilo}`;
+        btn.textContent = texto;
+        btn.onclick = () => {
+            if (cerrar) ocultarModal();
+            if (callback) callback();
+        };
+        buttonsContainer.appendChild(btn);
+    });
+
+    overlay.classList.remove("hidden");
+}
+
+function ocultarModal() {
+    document.getElementById("modal-overlay").classList.add("hidden");
+}
