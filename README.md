@@ -32,3 +32,25 @@ Aplicación web para cargar, visualizar y seleccionar asignaturas con horarios, 
 ```bash
 git clone https://github.com/tuusuario/oferta-academica.git
 cd oferta-academica
+```
+### 2. Crea y activa un entorno virtual
+
+```bash
+python -m venv env
+source env/bin/activate  # En Windows usa: env\Scripts\activate
+```
+### 3. Instala las dependencias
+
+```bash
+pip install -r requirements.txt
+```
+### 4. Aplica migraciones
+
+```bash
+python manage.py migrate
+```
+### 5. Ejecuta el servidor de desarrollo
+
+```bash
+python manage.py runserver
+```
