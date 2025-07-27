@@ -37,7 +37,10 @@ cd oferta-academica
 
 ```bash
 python -m venv env
-source env/bin/activate  # En Windows usa: env\Scripts\activate
+# En Linux/macOS:
+source env/bin/activate
+# En Windows:
+env\Scripts\activate
 ```
 ### 3. Instala las dependencias
 
