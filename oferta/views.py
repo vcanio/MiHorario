@@ -23,7 +23,7 @@ def cargar_excel(request):
             excel_file = request.FILES['archivo_excel']
             df = pd.read_excel(excel_file, sheet_name='Hoja1')
 
-            # 🧹 Limpiar datos antiguos
+            #  Limpiar datos antiguos
             Horario.objects.all().delete()
             Asignatura.objects.all().delete()
 
