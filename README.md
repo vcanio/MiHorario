@@ -30,7 +30,7 @@ MiHorario es una aplicación web pensada para estudiantes de Duoc UC. Permite ca
 ### 1. Clona el repositorio
 
 ```bash
-git clone https://github.com/KingWig07/MiHorario.git
+git clone https://github.com/vcanio/MiHorario.git
 cd MiHorario
 ```
 ### 2. Crea y activa un entorno virtual
