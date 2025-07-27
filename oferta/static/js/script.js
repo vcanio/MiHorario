@@ -212,16 +212,23 @@ document.querySelectorAll('.seleccionar-btn').forEach(btn => {
         }
 
         if (seleccionadas[sigla]) {
-            const confirmar = confirm(`Ya seleccionaste la sección ${seleccionadas[sigla].seccion} para ${nombre}.\n¿Cambiar por ${seccion}?`);
-            if (!confirmar) return;
-            quitarAsignatura(sigla);
-        }
-
-        const conflicto = haySolapamiento(horarios);
-        if (conflicto) {
-            alert(`Esta sección se solapa con ${conflicto.nombre} (sección ${conflicto.seccion}).`);
+        const solapado = haySolapamiento(horarios);
+        if (solapado) {
+            alert(`No puedes seleccionar esta sección porque se solapa con ${solapado.nombre} (${solapado.seccion}).`);
             return;
         }
+
+        const confirmar = confirm(`Ya seleccionaste la sección ${seleccionadas[sigla].seccion} para ${nombre}.\n¿Cambiar por ${seccion}?`);
+        if (!confirmar) return;
+        quitarAsignatura(sigla);
+            } else {
+                const solapado = haySolapamiento(horarios);
+                if (solapado) {
+                    alert(`No puedes seleccionar esta sección porque se solapa con ${solapado.nombre} (${solapado.seccion}).`);
+                    return;
+                }
+            }
+
 
         seleccionadas[sigla] = {
             id: btn.dataset.id,
