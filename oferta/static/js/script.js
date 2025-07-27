@@ -253,31 +253,3 @@ document.querySelectorAll('.seleccionar-btn').forEach(btn => {
 });
 
 actualizarHorario();
-
-function mostrarModal({ titulo = "", mensaje = "", botones = [] }) {
-    const overlay = document.getElementById("modal-overlay");
-    const title = document.getElementById("modal-title");
-    const msg = document.getElementById("modal-message");
-    const buttonsContainer = document.getElementById("modal-buttons");
-
-    title.textContent = titulo;
-    msg.innerHTML = mensaje;
-    buttonsContainer.innerHTML = "";
-
-    botones.forEach(({ texto, estilo = "", cerrar = true, callback }) => {
-        const btn = document.createElement("button");
-        btn.className = `px-4 py-2 rounded ${estilo}`;
-        btn.textContent = texto;
-        btn.onclick = () => {
-            if (cerrar) ocultarModal();
-            if (callback) callback();
-        };
-        buttonsContainer.appendChild(btn);
-    });
-
-    overlay.classList.remove("hidden");
-}
-
-function ocultarModal() {
-    document.getElementById("modal-overlay").classList.add("hidden");
-}
