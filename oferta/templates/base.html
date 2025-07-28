@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>MiHorario Beta</title>
+    <title>MiHorario</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="{% static 'css/style.css' %}" />
@@ -18,7 +18,7 @@
             <div class="flex items-center justify-between h-16">
                 <div class="flex items-center">
                     <div class="flex-shrink-0 text-xl font-semibold text-white">
-                        Horario App
+                        MiHorario
                     </div>
                     <div class="ml-10 flex items-baseline space-x-4">
                         <a href="{% url 'inicio' %}" class="text-white hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium">Cargar Excel</a>
@@ -36,8 +36,14 @@
     </main>
 
     <!-- Footer -->
-    <footer class="bg-gray-800 text-center text-sm text-gray-400 py-4">
-        MiHorario <span class="text-white">v1.0</span> — Desarrollado por <span class="text-white font-medium">Vicente Canio</span>
+    <footer class="text-center text-sm text-gray-500 mt-12 space-y-2">
+    <p>
+        <strong class="text-white">MiHorario</strong> — Desarrollado por
+        <span class="text-white font-medium">Vicente Canio</span>
+        </p>
+        <p>
+        Proyecto para estudiantes de <span class="text-blue-400 font-semibold">Duoc UC</span>
+    </p>
     </footer>
 
 </body>

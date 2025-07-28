@@ -1,36 +1,73 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
+  <head>
     <meta charset="UTF-8" />
-    <title>Inicio | MiHorario Beta</title>
+    <title>Inicio | MiHorario</title>
     <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-900 text-gray-200 min-h-screen flex items-center justify-center px-4">
-    <div class="max-w-lg w-full space-y-12">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="MiHorario Beta: Arma tu horario universitario de manera visual e interactiva, sin topes ni complicaciones."
+    />
+    <link rel="icon" href="/static/favicon.ico" type="image/x-icon" />
+  </head>
+  <body
+    class="bg-gray-950 text-gray-100 min-h-screen flex items-center justify-center px-4"
+  >
+    <div class="w-full max-w-xl space-y-12">
+      <header class="text-center">
+        <h1 class="text-5xl font-extrabold text-white mb-4">
+          Mi<span class="text-blue-500">Horario</span>
+        </h1>
+        <p class="text-gray-400 text-lg">
+          Arma tu horario de manera visual e interactiva, sin topes ni
+          complicaciones.
+        </p>
+      </header>
 
-        <div class="text-center">
-            <h1 class="text-4xl font-bold text-white mb-4">MiHorario Beta</h1>
-            <p class="text-lg text-gray-400 mb-6">Selecciona tus asignaturas y visualiza tu horario semanal de forma clara e interactiva.</p>
+      <section
+        class="bg-gray-800 p-8 rounded-2xl shadow-2xl border border-gray-700"
+      >
+        <h2 class="text-2xl font-semibold text-center mb-6">
+          Sube tu archivo Excel de oferta académica
+        </h2>
+
+        {% if mensaje %}
+        <div
+          class="bg-green-900 text-green-200 p-3 mb-4 border border-green-600 rounded-md text-center animate-pulse"
+          role="alert"
+        >
+          <strong>{{ mensaje }}</strong>
         </div>
+        {% endif %}
 
-        <div class="bg-gray-800 p-8 rounded-xl shadow-xl">
-            <h2 class="text-white text-2xl font-semibold mb-6 text-center">Subir archivo Excel de oferta académica</h2>
+        <form
+          method="post"
+          enctype="multipart/form-data"
+          class="flex flex-col gap-6"
+        >
+          {% csrf_token %}
+          <div class="space-y-3">{{ form.as_p }}</div>
 
-            {% if mensaje %}
-                <div class="bg-green-900 text-green-200 p-3 mb-4 border border-green-600 rounded-md text-center">
-                    <strong>{{ mensaje }}</strong>
-                </div>
-            {% endif %}
+          <button
+            type="submit"
+            class="bg-blue-600 hover:bg-blue-700 transition-colors duration-300 py-3 rounded-md font-medium text-white text-lg"
+          >
+            Cargar archivo
+          </button>
+        </form>
+      </section>
 
-            <form method="post" enctype="multipart/form-data" class="flex flex-col gap-5">
-                {% csrf_token %}
-                {{ form.as_p }}
-                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-md text-base font-medium transition duration-300">
-                    Cargar
-                </button>
-            </form>
-        </div>
-
+      <footer class="text-center text-sm text-gray-500 mt-12 space-y-2">
+        <p>
+          <strong class="text-white">MiHorario</strong> — Desarrollado por
+          <span class="text-white font-medium">Vicente Canio</span>
+        </p>
+        <p>
+          Proyecto para estudiantes de
+          <span class="text-blue-400 font-semibold">Duoc UC</span>
+        </p>
+      </footer>
     </div>
-</body>
+  </body>
 </html>
