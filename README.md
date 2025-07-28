@@ -57,3 +57,4 @@ python manage.py migrate
 ```bash
 python manage.py runserver
 ```
+💡 **Nota:** En entornos Windows, es posible ejecutar el servidor de desarrollo rápidamente mediante el comando run, el cual invoca el script run.bat incluido en el repositorio.
