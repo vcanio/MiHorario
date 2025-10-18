@@ -1,3 +1,5 @@
+// === CONSTANTES ===
+const dias = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
 const diasLargos = {
     'Lu': 'Lunes', 'Ma': 'Martes', 'Mi': 'Miércoles',
     'Ju': 'Jueves', 'Vi': 'Viernes', 'Sa': 'Sábado',
@@ -11,10 +13,22 @@ const colores = [
     'bg-violet-500', 'bg-pink-500'
 ];
 
-const dias = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+const iconoPlus = `
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+    </svg>`;
+
+const iconoTicket = `
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+        <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+    </svg>`;
+
+// === ESTADO ===
 let seleccionadas = JSON.parse(localStorage.getItem('seleccionadas')) || {};
 let asignaciones = {};
 let indiceActual = 0;
+
+// === UTILIDADES ===
 
 function guardarEnLocalStorage() {
     localStorage.setItem('seleccionadas', JSON.stringify(seleccionadas));
@@ -25,6 +39,11 @@ function colorDeFondo(sigla) {
         asignaciones[sigla] = colores[indiceActual++ % colores.length];
     }
     return asignaciones[sigla];
+}
+
+function parseTime(hora) {
+    const [h, m] = hora.split(':').map(Number);
+    return h * 60 + m;
 }
 
 function generarHoras(inicio, fin) {
@@ -57,11 +76,7 @@ function haySolapamiento(nuevosHorarios) {
     return null;
 }
 
-
-function parseTime(hora) {
-    const [h, m] = hora.split(':').map(Number);
-    return h * 60 + m;
-}
+// === RENDER ===
 
 function actualizarHorario() {
     const horarioBase = Object.fromEntries(dias.map(d => [d, []]));
@@ -114,9 +129,7 @@ function generarHTMLSeleccionadas() {
         <li class="flex justify-between items-center px-4 py-3 bg-gray-800 hover:bg-gray-700">
             <span>${datos.nombre} (${datos.seccion})${datos.virtual ? ' <span class="text-green-400">(virtual sincrónica)</span>' : ''}</span>
             <button onclick="quitarAsignatura('${sigla}')" class="p-1 text-red-500 hover:text-red-400" title="Quitar asignatura">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
-                </svg>
+                ${iconoBasurero}
             </button>
         </li>`).join('');
 
@@ -126,6 +139,12 @@ function generarHTMLSeleccionadas() {
             ${items || `<li class="px-4 py-3 text-gray-400 bg-gray-800">No hay asignaturas seleccionadas</li>`}
         </ul>`;
 }
+
+const iconoBasurero = `
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+    <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21..."/>
+</svg>
+`;
 
 function renderClases(horarioBase) {
     setTimeout(() => {
@@ -164,17 +183,7 @@ function renderClases(horarioBase) {
     }, 0);
 }
 
-const iconoPlus = `
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-    </svg>
-    `;
-
-const iconoTicket = `
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-    <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-    </svg>
-    `;
+// === EVENTOS ===
 
 function quitarAsignatura(sigla) {
     delete seleccionadas[sigla];
@@ -182,7 +191,7 @@ function quitarAsignatura(sigla) {
     actualizarHorario();
     document.querySelectorAll(`.seleccionar-btn[data-sigla="${sigla}"]`).forEach(btn => {
         btn.disabled = false;
-        btn.innerHTML = iconoPlus;  
+        btn.innerHTML = iconoPlus;
     });
 }
 
@@ -200,7 +209,7 @@ document.querySelectorAll('.seleccionar-btn').forEach(btn => {
         let horarios;
 
         try {
-            horarios = JSON.parse(btn.dataset.horarios.replace(/&quot;/g,'"')).map(h => ({
+            horarios = JSON.parse(btn.dataset.horarios.replace(/&quot;/g, '"')).map(h => ({
                 dia: diasLargos[h.dia] || h.dia,
                 inicio: h.inicio,
                 fin: h.fin
@@ -211,24 +220,17 @@ document.querySelectorAll('.seleccionar-btn').forEach(btn => {
             return;
         }
 
-        if (seleccionadas[sigla]) {
         const solapado = haySolapamiento(horarios);
         if (solapado) {
             alert(`No puedes seleccionar esta sección porque se solapa con ${solapado.nombre} (${solapado.seccion}).`);
             return;
         }
 
-        const confirmar = confirm(`Ya seleccionaste la sección ${seleccionadas[sigla].seccion} para ${nombre}.\n¿Cambiar por ${seccion}?`);
-        if (!confirmar) return;
-        quitarAsignatura(sigla);
-            } else {
-                const solapado = haySolapamiento(horarios);
-                if (solapado) {
-                    alert(`No puedes seleccionar esta sección porque se solapa con ${solapado.nombre} (${solapado.seccion}).`);
-                    return;
-                }
-            }
-
+        if (seleccionadas[sigla]) {
+            const confirmar = confirm(`Ya seleccionaste la sección ${seleccionadas[sigla].seccion} para ${nombre}.\n¿Cambiar por ${seccion}?`);
+            if (!confirmar) return;
+            quitarAsignatura(sigla);
+        }
 
         seleccionadas[sigla] = {
             id: btn.dataset.id,
@@ -243,13 +245,137 @@ document.querySelectorAll('.seleccionar-btn').forEach(btn => {
 
         document.querySelectorAll(`.seleccionar-btn[data-sigla="${sigla}"]`).forEach(b => {
             b.disabled = b.dataset.seccion === seccion;
-            if (b.disabled) {
-                b.innerHTML = iconoTicket;
-            } else {
-                b.innerHTML = iconoPlus;
-            }
+            b.innerHTML = b.disabled ? iconoTicket : iconoPlus;
         });
     });
 });
 
+function exportarComoICS() {
+    let contenido = `BEGIN:VCALENDAR\nVERSION:2.0\nCALSCALE:GREGORIAN\nMETHOD:PUBLISH\n`;
+
+    for (const [sigla, datos] of Object.entries(seleccionadas)) {
+        for (const h of datos.horarios) {
+            const fechaInicio = obtenerProximoDia(h.dia, h.inicio);
+            const fechaFin = obtenerProximoDia(h.dia, h.fin);
+
+            contenido += `BEGIN:VEVENT\n`;
+            contenido += `SUMMARY:${datos.nombre} (${datos.seccion})\n`;
+            contenido += `DTSTART:${formatearICSDate(fechaInicio)}\n`;
+            contenido += `DTEND:${formatearICSDate(fechaFin)}\n`;
+            contenido += `RRULE:FREQ=WEEKLY\n`;
+            contenido += `DESCRIPTION:${datos.virtual ? 'Clase virtual sincrónica' : 'Clase presencial'}\n`;
+            contenido += `END:VEVENT\n`;
+        }
+    }
+
+    contenido += `END:VCALENDAR`;
+
+    const blob = new Blob([contenido], { type: 'text/calendar;charset=utf-8' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'horario.ics';
+    link.click();
+}
+
+function obtenerProximoDia(diaNombre, hora) {
+    const diasMap = {
+        'Lunes': 1, 'Martes': 2, 'Miércoles': 3, 'Jueves': 4, 'Viernes': 5, 'Sábado': 6
+    };
+
+    const hoy = new Date();
+    const hoyDia = hoy.getDay(); // 0 (domingo) a 6 (sábado)
+    let objetivo = diasMap[diaNombre];
+
+    if (objetivo === undefined) return hoy;
+
+    const diferencia = (objetivo - hoyDia + 7) % 7 || 7;
+    const fecha = new Date(hoy);
+    fecha.setDate(hoy.getDate() + diferencia);
+
+    const [h, m] = hora.split(':').map(Number);
+    fecha.setHours(h, m, 0, 0);
+
+    return fecha;
+}
+
+function formatearICSDate(date) {
+    return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+}
+
+async function exportarComoPDF() {
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF('p', 'mm', 'a4');
+
+    // 1. Encabezado y asignaturas
+    pdf.setFontSize(18);
+    pdf.text("Horario semanal", 105, 15, { align: 'center' });
+
+    pdf.setFontSize(12);
+    let y = 25;
+    if (Object.keys(seleccionadas).length > 0) {
+        for (const [sigla, datos] of Object.entries(seleccionadas)) {
+            pdf.text(`• ${datos.nombre} (${datos.seccion})${datos.virtual ? " [Virtual]" : ""}`, 10, y);
+            y += 6;
+        }
+    } else {
+        pdf.text("No hay asignaturas seleccionadas", 10, y);
+        y += 6;
+    }
+
+    y += 4;
+
+    // 2. Clonar el horario para quitar scroll y capturarlo completo
+    const original = document.getElementById('horario-container');
+    if (!original) {
+        alert("No se encontró el horario para exportar.");
+        return;
+    }
+
+    const clone = original.cloneNode(true);
+    clone.style.maxHeight = 'none'; // sin límite
+    clone.style.overflow = 'visible';
+    clone.style.height = 'auto';
+    clone.id = 'horario-clone';
+
+    // Insertar fuera de pantalla para no alterar la vista
+    const tempWrapper = document.createElement('div');
+    tempWrapper.style.position = 'absolute';
+    tempWrapper.style.top = '-9999px';
+    tempWrapper.appendChild(clone);
+    document.body.appendChild(tempWrapper);
+
+    // 3. Capturar la tabla completa
+    const canvas = await html2canvas(clone, {
+        scale: 2,
+        useCORS: true
+    });
+
+    // Eliminar el clon temporal
+    document.body.removeChild(tempWrapper);
+
+    // 4. Pasar imagen al PDF
+    const imgData = canvas.toDataURL('image/png');
+    const imgWidth = 190; // mm
+    const pageHeight = pdf.internal.pageSize.getHeight();
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+    let heightLeft = imgHeight;
+    let position = y;
+
+    pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
+    heightLeft -= (pageHeight - position);
+
+    while (heightLeft > 0) {
+        pdf.addPage();
+        position = 10;
+        pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+    }
+
+    // 5. Descargar
+    pdf.save("horario.pdf");
+}
+
+
+// Inicializar
 actualizarHorario();

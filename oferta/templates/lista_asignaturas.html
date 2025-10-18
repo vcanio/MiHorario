@@ -40,11 +40,24 @@
 
     <!-- Horario -->
     <div id="horario" class="mt-4 mb-4"></div>
+    <button onclick="exportarComoICS()" class="mt-2 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-500">
+    Exportar a Google Calendar (.ics)
+    </button>
+    <button onclick="exportarComoPDF()" class="px-4 py-2 bg-blue-600 text-white rounded">
+    Exportar como PDF
+    </button>
+
+    
 
 </div>
 
 <!-- Scripts -->
 <script src="{% static 'js/script.js' %}"></script>
+<!-- Agrega estas librerías en tu HTML -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+
 
 <!-- Script para resetear filtros dependientes -->
 <script>
