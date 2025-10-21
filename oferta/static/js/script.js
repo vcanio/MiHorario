@@ -129,7 +129,7 @@ function generarHTMLSeleccionadas() {
         <li class="flex justify-between items-center px-4 py-3 bg-gray-800 hover:bg-gray-700">
             <span>${datos.nombre} (${datos.seccion})${datos.virtual ? ' <span class="text-green-400">(virtual sincrónica)</span>' : ''}</span>
             <button onclick="quitarAsignatura('${sigla}')" class="p-1 text-red-500 hover:text-red-400" title="Quitar asignatura">
-                ${iconoBasurero}
+                ${iconoEquis}
             </button>
         </li>`).join('');
 
@@ -140,9 +140,9 @@ function generarHTMLSeleccionadas() {
         </ul>`;
 }
 
-const iconoBasurero = `
+const iconoEquis = `
 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-    <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21..."/>
+  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
 </svg>
 `;
 
