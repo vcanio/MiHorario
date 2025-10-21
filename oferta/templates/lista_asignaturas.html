@@ -2,64 +2,56 @@
 {% load static %}
 
 {% block content %}
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+<h1 class="text-3xl font-bold mb-6">Oferta académica</h1>
 
-    <h1 class="text-3xl font-bold mb-6">Oferta académica</h1>
+{% include "includes/filtros.html" %}
+{% include "includes/tabla_asignaturas.html" %}
 
-    {% include "includes/filtros.html" %}
-    {% include "includes/tabla_asignaturas.html" %}
-
-    <!-- Paginación -->
-    <nav class="mt-6 flex justify-center items-center space-x-2 text-sm">
-        {% if asignaturas.has_previous %}
-            <a href="?{% if request.GET %}{{ request.GET.urlencode }}&{% endif %}page={{ asignaturas.previous_page_number }}"
-            class="px-3 py-1 bg-gray-700 text-white rounded hover:bg-gray-600">
-                &laquo; Anterior
-            </a>
-        {% else %}
-            <span class="px-3 py-1 bg-gray-800 text-gray-500 rounded cursor-not-allowed">
-                &laquo; Anterior
-            </span>
-        {% endif %}
-
-        <span class="px-3 py-1 bg-gray-800 text-gray-300 rounded">
-            Página {{ asignaturas.number }} de {{ asignaturas.paginator.num_pages }}
+<nav class="mt-6 flex flex-wrap justify-center items-center gap-2 text-sm">
+    {% if asignaturas.has_previous %}
+        <a href="?{% if request.GET %}{{ request.GET.urlencode }}&{% endif %}page={{ asignaturas.previous_page_number }}"
+        class="px-3 py-1 bg-gray-700 text-white rounded hover:bg-gray-600">
+            &laquo; Anterior
+        </a>
+    {% else %}
+        <span class="px-3 py-1 bg-gray-800 text-gray-500 rounded cursor-not-allowed">
+            &laquo; Anterior
         </span>
+    {% endif %}
 
-        {% if asignaturas.has_next %}
-            <a href="?{% if request.GET %}{{ request.GET.urlencode }}&{% endif %}page={{ asignaturas.next_page_number }}"
-            class="px-3 py-1 bg-gray-700 text-white rounded hover:bg-gray-600">
-                Siguiente &raquo;
-            </a>
-        {% else %}
-            <span class="px-3 py-1 bg-gray-800 text-gray-500 rounded cursor-not-allowed">
-                Siguiente &raquo;
-            </span>
-        {% endif %}
-    </nav>
+    <span class="px-3 py-1 bg-gray-800 text-gray-300 rounded">
+        Página {{ asignaturas.number }} de {{ asignaturas.paginator.num_pages }}
+    </span>
 
-    <!-- Horario -->
-    <div id="horario" class="mt-4 mb-4"></div>
-    <button onclick="exportarComoICS()" class="mt-2 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-500">
+    {% if asignaturas.has_next %}
+        <a href="?{% if request.GET %}{{ request.GET.urlencode }}&{% endif %}page={{ asignaturas.next_page_number }}"
+        class="px-3 py-1 bg-gray-700 text-white rounded hover:bg-gray-600">
+            Siguiente &raquo;
+        </a>
+    {% else %}
+        <span class="px-3 py-1 bg-gray-800 text-gray-500 rounded cursor-not-allowed">
+            Siguiente &raquo;
+        </span>
+    {% endif %}
+</nav>
+
+<div id="horario" class="mt-4 mb-4"></div>
+
+<div class="mt-4 mb-4 flex flex-col sm:flex-row sm:justify-start gap-3">
+    <button onclick="exportarComoICS()" class="w-full sm:w-auto px-4 py-2 bg-green-600 text-white rounded hover:bg-green-500">
     Exportar a Google Calendar (.ics)
     </button>
-    <button onclick="exportarComoPDF()" class="px-4 py-2 bg-blue-600 text-white rounded">
+    <button onclick="exportarComoPDF()" class="w-full sm:w-auto px-4 py-2 bg-blue-600 text-white rounded">
     Exportar como PDF
     </button>
-
-    
-
 </div>
 
-<!-- Scripts -->
 <script src="{% static 'js/script.js' %}"></script>
-<!-- Agrega estas librerías en tu HTML -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
 
 
-<!-- Script para resetear filtros dependientes -->
 <script>
     function resetDependientes(campo) {
         const form = document.forms[0];

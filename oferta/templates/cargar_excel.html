@@ -23,6 +23,11 @@
           Arma tu horario de manera visual e interactiva, sin topes ni
           complicaciones.
         </p>
+        <div class="mt-4">
+            <a href="{% url 'lista_asignaturas' %}" class="text-blue-400 hover:text-blue-300 transition-colors">
+                Ir a la lista de asignaturas &rarr;
+            </a>
+        </div>
       </header>
 
       <section
@@ -45,17 +50,37 @@
           method="post"
           enctype="multipart/form-data"
           class="flex flex-col gap-6"
+          id="upload-form"
         >
           {% csrf_token %}
-          <div class="space-y-3">{{ form.as_p }}</div>
+          
+          {{ form.archivo_excel.errors }}
+          {{ form.archivo_excel.label_tag.as_hidden }}
+          <div class="hidden">{{ form.archivo_excel }}</div>
 
+          <label for="{{ form.archivo_excel.id_for_label }}" 
+                 id="file-label"
+                 class="w-full cursor-pointer rounded-md border border-gray-600 bg-gray-700 px-4 py-3 text-center text-gray-200 transition hover:bg-gray-600">
+              <svg xmlns="http://www.w3.org/2000/svg" class="inline-block h-5 w-5 -mt-1 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+              </svg>
+              <span id="file-chosen-text" class="transition-colors">Seleccionar archivo Excel...</span>
+          </label>
           <button
             type="submit"
+            id="submit-button"
             class="bg-blue-600 hover:bg-blue-700 transition-colors duration-300 py-3 rounded-md font-medium text-white text-lg"
           >
-            Cargar archivo
+            <span id="submit-text">Cargar archivo</span>
+            <span id="loading-spinner" class="hidden">
+                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Procesando...
+            </span>
           </button>
-        </form>
+          </form>
       </section>
 
       <footer class="text-center text-sm text-gray-500 mt-12 space-y-2">
@@ -69,5 +94,49 @@
         </p>
       </footer>
     </div>
+
+    <script>
+        // Script para mostrar el nombre del archivo seleccionado (Sugerencia 1)
+        const fileInput = document.getElementById('{{ form.archivo_excel.id_for_label }}');
+        const fileChosenText = document.getElementById('file-chosen-text');
+        const fileLabel = document.getElementById('file-label');
+
+        if (fileInput) {
+            fileInput.addEventListener('change', function(e) {
+                var fileName = e.target.files[0] ? e.target.files[0].name : 'Seleccionar archivo Excel...';
+                fileChosenText.textContent = fileName;
+                // Resetear estilos de error si los tuviera
+                fileLabel.classList.remove('border-red-500', 'border-2');
+                fileChosenText.classList.remove('text-red-300');
+            });
+        }
+
+        // Script para el estado de "cargando" (Sugerencia 3)
+        const uploadForm = document.getElementById('upload-form');
+        
+        if (uploadForm) {
+            uploadForm.addEventListener('submit', function(event) {
+                // Verificar si se seleccionó un archivo
+                if (fileInput && fileInput.files.length === 0) {
+                    // Prevenir el envío del formulario
+                    event.preventDefault(); 
+                    
+                    // Mostrar error visual
+                    fileLabel.classList.add('border-red-500', 'border-2');
+                    fileChosenText.textContent = 'Por favor, selecciona un archivo primero.';
+                    fileChosenText.classList.add('text-red-300');
+                    return;
+                }
+
+                // Si hay archivo, mostrar estado de carga
+                document.getElementById('submit-text').classList.add('hidden');
+                document.getElementById('loading-spinner').classList.remove('hidden');
+                
+                const submitButton = document.getElementById('submit-button');
+                submitButton.disabled = true;
+                submitButton.classList.add('opacity-75', 'cursor-not-allowed');
+            });
+        }
+    </script>
   </body>
 </html>

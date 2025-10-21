@@ -23,9 +23,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-bvkxxu_-s=w5f2q(-xaqq8n#1*0+(gy&t73ifwyyzbv33&w576'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'coolify.local:8001']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'coolify.local:8001', 'coolify.local:9000', '.trycloudflare.com']
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://*.trycloudflare.com',
+]
 
 
 
