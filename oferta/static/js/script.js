@@ -23,13 +23,61 @@ const iconoTicket = `
         <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
     </svg>`;
 
+const iconoEquis = `
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+</svg>
+`;
+
+// === REFERENCIAS A LOS MODALES ===
+
+// Modal de Alerta/Solapamiento
+const modal = document.getElementById('modal-solapamiento');
+const modalTitulo = document.getElementById('modal-titulo');
+const modalMensaje = document.getElementById('modal-mensaje');
+const modalBtnCerrar = document.getElementById('modal-btn-cerrar');
+
+// Modal de Confirmación
+const modalConfirm = document.getElementById('modal-confirmacion');
+const confirmModalTitulo = document.getElementById('confirm-modal-titulo');
+const confirmModalMensaje = document.getElementById('confirm-modal-mensaje');
+const confirmModalBtnCancelar = document.getElementById('confirm-modal-btn-cancelar');
+const confirmModalBtnAceptar = document.getElementById('confirm-modal-btn-aceptar');
+
 // === ESTADO ===
 let seleccionadas = JSON.parse(localStorage.getItem('seleccionadas')) || {};
 let asignaciones = {};
 let indiceActual = 0;
+// Variable para guardar la acción a ejecutar (callback)
+let confirmCallback = null;
 
 // === UTILIDADES ===
 
+// --- Funciones del Modal de Alerta ---
+function mostrarModal(titulo, mensaje) {
+    if (modalTitulo) modalTitulo.textContent = titulo;
+    if (modalMensaje) modalMensaje.textContent = mensaje;
+    if (modal) modal.classList.remove('hidden');
+}
+
+function ocultarModal() {
+    if (modal) modal.classList.add('hidden');
+}
+
+// --- Funciones del Modal de Confirmación ---
+function mostrarModalConfirmacion(titulo, mensaje, callback) {
+    if (confirmModalTitulo) confirmModalTitulo.textContent = titulo;
+    if (confirmModalMensaje) confirmModalMensaje.textContent = mensaje;
+    confirmCallback = callback; // Guardamos la acción a ejecutar
+    if (modalConfirm) modalConfirm.classList.remove('hidden');
+}
+
+function ocultarModalConfirmacion() {
+    if (modalConfirm) modalConfirm.classList.add('hidden');
+    confirmCallback = null; // Limpiamos la acción
+}
+
+// --- Otras Utilidades ---
 function guardarEnLocalStorage() {
     localStorage.setItem('seleccionadas', JSON.stringify(seleccionadas));
 }
@@ -140,20 +188,19 @@ function generarHTMLSeleccionadas() {
         </ul>`;
 }
 
-const iconoEquis = `
-<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
-</svg>
-`;
-
 function renderClases(horarioBase) {
     setTimeout(() => {
         const overlay = document.getElementById('class-overlay');
+        if (!overlay) return; // Añadido chequeo de seguridad
         overlay.innerHTML = '';
 
         const table = document.querySelector('#horario-container table');
+        if (!table) return; // Añadido chequeo de seguridad
+        
         const timeHeader = table.querySelector('th:first-child');
         const dayHeaders = table.querySelectorAll('thead th:not(:first-child)');
+
+        if (!timeHeader || dayHeaders.length === 0) return; // Añadido chequeo de seguridad
 
         const baseTop = timeHeader.offsetHeight;
         const baseLeft = timeHeader.offsetWidth;
@@ -163,28 +210,64 @@ function renderClases(horarioBase) {
         let left = baseLeft;
 
         dias.forEach((dia, i) => {
-            const colW = dayHeaders[i].offsetWidth;
+            if (dayHeaders[i]) {
+                const colW = dayHeaders[i].offsetWidth;
 
-            horarioBase[dia]?.forEach(materia => {
-                const top = (parseTime(materia.inicio) - startMin) * pxPorMin + baseTop;
-                const height = (parseTime(materia.fin) - parseTime(materia.inicio)) * pxPorMin;
-                const color = colorDeFondo(materia.sigla);
+                horarioBase[dia]?.forEach(materia => {
+                    const top = (parseTime(materia.inicio) - startMin) * pxPorMin + baseTop;
+                    const height = (parseTime(materia.fin) - parseTime(materia.inicio)) * pxPorMin;
+                    const color = colorDeFondo(materia.sigla);
 
-                overlay.insertAdjacentHTML('beforeend', `
-                    <div class="absolute ${color} text-white p-1 rounded text-xs leading-tight pointer-events-auto overflow-hidden"
-                        style="top: ${top}px; left: ${left}px; width: ${colW}px; height: ${height}px;">
-                        <div class="font-semibold">${materia.nombre}${materia.virtual ? ' <span class="text-green-300">(virtual sincrónica)</span>' : ''}</div>
-                        <div class="text-[11px] text-gray-200">${materia.inicio} - ${materia.fin}</div>
-                    </div>`);
-            });
+                    overlay.insertAdjacentHTML('beforeend', `
+                        <div class="absolute ${color} text-white p-1 rounded text-xs leading-tight pointer-events-auto overflow-hidden"
+                            style="top: ${top}px; left: ${left}px; width: ${colW}px; height: ${height}px;">
+                            <div class="font-semibold">${materia.nombre}${materia.virtual ? ' <span class="text-green-300">(virtual sincrónica)</span>' : ''}</div>
+                            <div class="text-[11px] text-gray-200">${materia.inicio} - ${materia.fin}</div>
+                        </div>`);
+                });
 
-            left += colW;
+                left += colW;
+            }
         });
     }, 0);
 }
 
 // === EVENTOS ===
 
+// --- Listeners del Modal de Alerta ---
+if (modalBtnCerrar) {
+    modalBtnCerrar.addEventListener('click', ocultarModal);
+}
+if (modal) {
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            ocultarModal();
+        }
+    });
+}
+
+// --- Listeners del Modal de Confirmación ---
+if (confirmModalBtnCancelar) {
+    confirmModalBtnCancelar.addEventListener('click', ocultarModalConfirmacion);
+}
+if (modalConfirm) {
+    modalConfirm.addEventListener('click', (e) => {
+        if (e.target === modalConfirm) {
+            ocultarModalConfirmacion();
+        }
+    });
+}
+if (confirmModalBtnAceptar) {
+    confirmModalBtnAceptar.addEventListener('click', () => {
+        if (confirmCallback) {
+            confirmCallback(); // Ejecutamos la acción guardada
+        }
+        ocultarModalConfirmacion(); // Cerramos el modal
+    });
+}
+
+
+// --- Otros Eventos ---
 function quitarAsignatura(sigla) {
     delete seleccionadas[sigla];
     guardarEnLocalStorage();
@@ -216,22 +299,56 @@ document.querySelectorAll('.seleccionar-btn').forEach(btn => {
             }));
         } catch (e) {
             console.error("Error leyendo horarios", e);
-            alert("Error al procesar los horarios.");
+            mostrarModal('Error', 'No se pudieron procesar los horarios de esta asignatura.');
             return;
         }
 
         const solapado = haySolapamiento(horarios);
         if (solapado) {
-            alert(`No puedes seleccionar esta sección porque se solapa con ${solapado.nombre} (${solapado.seccion}).`);
+            // *** ¡CAMBIO 1! ***
+            // Usamos el modal de alerta en lugar de alert()
+            mostrarModal(
+                'Conflicto de Horario',
+                `No puedes seleccionar esta sección porque se solapa con ${solapado.nombre} (${solapado.seccion}).`
+            );
             return;
         }
 
+        // *** ¡CAMBIO 2! ***
+        // Usamos el modal de confirmación en lugar de confirm()
         if (seleccionadas[sigla]) {
-            const confirmar = confirm(`Ya seleccionaste la sección ${seleccionadas[sigla].seccion} para ${nombre}.\n¿Cambiar por ${seccion}?`);
-            if (!confirmar) return;
-            quitarAsignatura(sigla);
+            mostrarModalConfirmacion(
+                'Confirmar Reemplazo',
+                `Ya tienes seleccionada la sección ${seleccionadas[sigla].seccion} para ${nombre}. ¿Deseas reemplazarla por la sección ${seccion}?`,
+                () => {
+                    // Esta función (callback) se ejecuta si el usuario presiona "Reemplazar"
+                    quitarAsignatura(sigla);
+                    
+                    // Movemos la lógica de añadir la nueva asignatura aquí dentro
+                    seleccionadas[sigla] = {
+                        id: btn.dataset.id,
+                        nombre,
+                        seccion,
+                        horarios,
+                        virtual: ['true', 'sí'].includes((btn.dataset.virtual || '').toLowerCase())
+                    };
+
+                    guardarEnLocalStorage();
+                    actualizarHorario();
+
+                    // Actualizamos los botones
+                    document.querySelectorAll(`.seleccionar-btn[data-sigla="${sigla}"]`).forEach(b => {
+                        b.disabled = b.dataset.seccion === seccion;
+                        b.innerHTML = b.disabled ? iconoTicket : iconoPlus;
+                    });
+                }
+            );
+            
+            // Detenemos la ejecución aquí; la lógica continúa (o no) en el callback
+            return;
         }
 
+        // Esta parte solo se ejecuta si no había una asignatura previa (flujo normal)
         seleccionadas[sigla] = {
             id: btn.dataset.id,
             nombre,
