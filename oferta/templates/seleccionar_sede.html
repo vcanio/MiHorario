@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Inicio | MiHorario </title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="PlannerIA Beta: Arma tu horario universitario de manera visual e interactiva, sin topes ni complicaciones."
+    />
+    <link rel="icon" href="/static/favicon.ico" type="image/x-icon" />
+  </head>
+  <body
+    class="bg-gray-950 text-gray-100 min-h-screen flex items-center justify-center px-4"
+  >
+    <div class="w-full max-w-xl space-y-12">
+      <header class="text-center">
+        <h1 class="text-5xl font-extrabold text-white mb-4">
+          Mi<span class="text-blue-500">Horario</span>
+        </h1>
+        <p class="text-gray-400 text-lg">
+          Arma tu horario de manera visual e interactiva, sin topes ni
+          complicaciones.
+        </p>
+      </header>
+
+      <section
+        class="bg-gray-800 p-8 rounded-2xl shadow-2xl border border-gray-700"
+      >
+        <h2 class="text-2xl font-semibold text-center mb-6">
+          Selecciona tu Sede
+        </h2>
+
+        <form
+          method="GET"
+          action="{% url 'lista_asignaturas' %}"
+          class="flex flex-col gap-6"
+        >
+          <div>
+            <label for="sede-select" class="block text-sm font-medium text-gray-300 mb-2">Sede</label>
+            <select id="sede-select" name="sede" 
+                    required
+                    class="w-full px-4 py-3 rounded-lg border border-gray-600 bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="" disabled selected>-- Elige una sede --</option>
+                {% for sede in sedes %}
+                    <option value="{{ sede }}">{{ sede }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <button
+            type="submit"
+            class="bg-blue-600 hover:bg-blue-700 transition-colors duration-300 py-3 rounded-md font-medium text-white text-lg"
+        >
+            Continuar
+        </button>
+        </form>
+    </section>
+
+    <footer class="text-center text-sm text-gray-500 mt-12 space-y-2">
+        <p>
+        <strong class="text-white">MiHorario </strong> — Desarrollado por
+        <span class="text-white font-medium">Vicente Canio</span>
+        </p>
+        <p>
+        Proyecto para estudiantes de
+        <span class="text-blue-400 font-semibold">Duoc UC</span>
+        </p>
+    </footer>
+    </div>
+</body>
+</html>

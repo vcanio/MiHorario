@@ -10,124 +10,172 @@ from .forms import ExcelUploadForm
 from .models import Asignatura, Horario
 
 
+# ... (justo después de las importaciones)
+from .forms import ExcelUploadForm
+from .models import Asignatura, Horario
+# Importamos 'reverse' para la redirección en cargar_excel
+from django.urls import reverse 
+
+def seleccionar_sede(request):
+    """
+    Vista para la página de inicio, donde el usuario selecciona su sede.
+    """
+    sedes = Asignatura.objects.values_list('sede', flat=True).distinct().order_by('sede')
+    return render(request, 'seleccionar_sede.html', {'sedes': sedes})
+
 @transaction.atomic
 def cargar_excel(request):
-    """
-    Vista para cargar y procesar un archivo Excel que contiene asignaturas y horarios.
-    Elimina datos anteriores y los reemplaza por los nuevos cargados desde el archivo.
-    """
+    mensaje_error = None
     if request.method == 'POST':
         form = ExcelUploadForm(request.POST, request.FILES)
 
         if form.is_valid():
             excel_file = request.FILES['archivo_excel']
-            df = pd.read_excel(excel_file, sheet_name='Hoja1')
+            
+            try:
+                df = pd.read_excel(excel_file, sheet_name='Hoja1')
 
-            #  Limpiar datos antiguos
-            Horario.objects.all().delete()
-            Asignatura.objects.all().delete()
+                # --- INICIO DE MODIFICACIÓN ---
 
-            # Agrupar datos por Sección
-            agrupadas = df.groupby('Sección')
-            asignaturas_bulk = []
-            asignatura_temp_info = []  # Guarda (asignatura, grupo) para luego agregar horarios
+                # 1. Identificar la sede del archivo
+                if 'Sede' not in df.columns or df.empty:
+                    mensaje_error = 'El archivo Excel no tiene la columna "Sede" o está vacío.'
+                    raise ValueError(mensaje_error)
+                
+                sede_a_cargar = df['Sede'].iloc[0]
 
-            for seccion, grupo in agrupadas:
-                fila = grupo.iloc[0]
-                asignatura = Asignatura(
-                    sede=fila['Sede'],
-                    carrera=fila['Carrera'],
-                    plan=str(fila['Plan']),
-                    jornada=fila['Jornada'],
-                    nivel=fila['Nivel'],
-                    sigla=fila['Sigla'],
-                    nombre=fila['Asignatura'],
-                    seccion=fila['Sección'],
-                    docente=fila.get('Docente', ''),
-                    virtual_sincronica=not pd.isna(fila.get('ASIGNATURA VIRTUAL SINCRONICA'))
+                if not sede_a_cargar or pd.isna(sede_a_cargar):
+                    mensaje_error = 'No se pudo identificar la Sede en la primera fila del archivo.'
+                    raise ValueError(mensaje_error)
+
+                # 2. Limpiar datos antiguos SÓLO para esa sede
+                print(f"Limpiando datos antiguos para la sede: {sede_a_cargar}...")
+                Asignatura.objects.filter(sede=sede_a_cargar).delete()
+                print("Datos antiguos de la sede eliminados.")
+                
+                # --- FIN DE MODIFICACIÓN ---
+
+                # Agrupar datos por Sección
+                agrupadas = df.groupby('Sección')
+                asignaturas_bulk = []
+                asignatura_temp_info = []  # Guarda (asignatura, grupo) para luego agregar horarios
+
+                for seccion, grupo in agrupadas:
+                    fila = grupo.iloc[0]
+                    asignatura = Asignatura(
+                        sede=fila['Sede'],
+                        carrera=fila['Carrera'],
+                        plan=str(fila['Plan']),
+                        jornada=fila['Jornada'],
+                        nivel=fila['Nivel'],
+                        sigla=fila['Sigla'],
+                        nombre=fila['Asignatura'],
+                        seccion=fila['Sección'],
+                        docente=fila.get('Docente', ''),
+                        virtual_sincronica=not pd.isna(fila.get('ASIGNATURA VIRTUAL SINCRONICA'))
+                    )
+                    asignaturas_bulk.append(asignatura)
+                    asignatura_temp_info.append((asignatura, grupo))
+
+                # Insertar todas las asignaturas
+                Asignatura.objects.bulk_create(asignaturas_bulk)
+
+                # Obtener IDs reales desde la base de datos
+                asignaturas_creadas = Asignatura.objects.filter(
+                    sede=sede_a_cargar, # Filtramos por sede para optimizar
+                    sigla__in=[a.sigla for a in asignaturas_bulk],
+                    seccion__in=[a.seccion for a in asignaturas_bulk]
                 )
-                asignaturas_bulk.append(asignatura)
-                asignatura_temp_info.append((asignatura, grupo))
+                asignaturas_dict = {
+                    (a.sigla, a.seccion): a for a in asignaturas_creadas
+                }
 
-            # Insertar todas las asignaturas
-            Asignatura.objects.bulk_create(asignaturas_bulk)
+                horarios_bulk = []
 
-            # Obtener IDs reales desde la base de datos
-            asignaturas_creadas = Asignatura.objects.filter(
-                sigla__in=[a.sigla for a in asignaturas_bulk],
-                seccion__in=[a.seccion for a in asignaturas_bulk]
-            )
-            asignaturas_dict = {
-                (a.sigla, a.seccion): a for a in asignaturas_creadas
-            }
+                for asig_temp, grupo in asignatura_temp_info:
+                    asignatura = asignaturas_dict.get((asig_temp.sigla, asig_temp.seccion))
+                    if not asignatura:
+                        continue
 
-            horarios_bulk = []
+                    for _, fila_horario in grupo.iterrows():
+                        try:
+                            dia_hora = fila_horario['Horario'].split(" ", 1)
+                            dia = dia_hora[0]
+                            hora_inicio, hora_fin = dia_hora[1].split(" - ")
 
-            for asig_temp, grupo in asignatura_temp_info:
-                asignatura = asignaturas_dict.get((asig_temp.sigla, asig_temp.seccion))
-                if not asignatura:
-                    continue
+                            # Parsear horas
+                            hora_inicio = datetime.strptime(hora_inicio.strip(), "%H:%M:%S").time()
+                            hora_fin = datetime.strptime(hora_fin.strip(), "%H:%M:%S").time()
 
-                for _, fila_horario in grupo.iterrows():
-                    try:
-                        dia_hora = fila_horario['Horario'].split(" ", 1)
-                        dia = dia_hora[0]
-                        hora_inicio, hora_fin = dia_hora[1].split(" - ")
+                            horarios_bulk.append(Horario(
+                                asignatura=asignatura,
+                                dia=dia,
+                                hora_inicio=hora_inicio,
+                                hora_fin=hora_fin
+                            ))
+                        except Exception as e:
+                            print(f"Error procesando horario: {fila_horario.get('Horario', '')} → {e}")
 
-                        # Parsear horas
-                        hora_inicio = datetime.strptime(hora_inicio.strip(), "%H:%M:%S").time()
-                        hora_fin = datetime.strptime(hora_fin.strip(), "%H:%M:%S").time()
+                # Insertar todos los horarios
+                Horario.objects.bulk_create(horarios_bulk)
 
-                        horarios_bulk.append(Horario(
-                            asignatura=asignatura,
-                            dia=dia,
-                            hora_inicio=hora_inicio,
-                            hora_fin=hora_fin
-                        ))
-                    except Exception as e:
-                        print(f"Error procesando horario: {fila_horario.get('Horario', '')} → {e}")
+                # Redirigimos a la lista, pero ahora filtrada por la sede que se acaba de cargar
+                return redirect(f"{reverse('lista_asignaturas')}?sede={sede_a_cargar}")
 
-            # Insertar todos los horarios
-            Horario.objects.bulk_create(horarios_bulk)
+            except Exception as e:
+                # Si algo falla (ej. lectura de Excel, columna 'Sede' no encontrada)
+                mensaje_error = f"Error al procesar el archivo: {e}"
+                # Hacemos rollback manual de la transacción si es necesario (aunque @transaction.atomic ayuda)
+                Asignatura.objects.filter(sede=sede_a_cargar).delete()
+                print(f"Error: {e}")
 
-            return redirect('lista_asignaturas')
     else:
         form = ExcelUploadForm()
 
-    return render(request, 'cargar_excel.html', {'form': form})
+    return render(request, 'cargar_excel.html', {'form': form, 'mensaje_error': mensaje_error})
 
 
 def lista_asignaturas(request):
     """
-    Vista para listar asignaturas, con filtros por carrera, jornada, nivel y texto de búsqueda.
-    También pagina los resultados.
+    Vista para listar asignaturas, con filtros por sede, carrera, jornada, nivel y búsqueda.
     """
-    asignaturas = Asignatura.objects.all()
+    # Query base
+    asignaturas_query = Asignatura.objects.all()
 
-    # Filtros
+    # --- INICIO MODIFICACIÓN ---
+    
+    # 1. Filtro principal: Sede
+    sedes = Asignatura.objects.values_list('sede', flat=True).distinct().order_by('sede')
+    sede = request.GET.get('sede')
+    if sede:
+        asignaturas_query = asignaturas_query.filter(sede=sede)
+    
+    # --- FIN MODIFICACIÓN ---
+
+    # 2. Filtros dependientes
     carrera = request.GET.get('carrera')
     jornada = request.GET.get('jornada')
     nivel = request.GET.get('nivel')
     busqueda = request.GET.get('busqueda')
 
     if carrera:
-        asignaturas = asignaturas.filter(carrera=carrera)
+        asignaturas_query = asignaturas_query.filter(carrera=carrera)
     if jornada:
-        asignaturas = asignaturas.filter(jornada=jornada)
+        asignaturas_query = asignaturas_query.filter(jornada=jornada)
     if nivel:
-        asignaturas = asignaturas.filter(nivel=nivel)
+        asignaturas_query = asignaturas_query.filter(nivel=nivel)
     if busqueda:
-        asignaturas = asignaturas.filter(
+        asignaturas_query = asignaturas_query.filter(
             Q(nombre__icontains=busqueda) |
             Q(sigla__icontains=busqueda)
         )
 
     # Ordenar y quitar duplicados por sigla + sección
-    asignaturas = asignaturas.order_by('sigla', 'seccion')
+    asignaturas_query = asignaturas_query.order_by('sigla', 'seccion')
     vistos = set()
     asignaturas_list = []
 
-    for a in asignaturas:
+    for a in asignaturas_query:
         key = (a.sigla, a.seccion)
         if key not in vistos:
             vistos.add(key)
@@ -141,22 +189,33 @@ def lista_asignaturas(request):
     except (PageNotAnInteger, EmptyPage):
         page_obj = paginator.page(1)
 
-    # Datos para filtros desplegables
-    carreras = Asignatura.objects.values_list('carrera', flat=True).distinct()
-    jornadas = Asignatura.objects.values_list('jornada', flat=True).distinct()
-    niveles = Asignatura.objects.values_list('nivel', flat=True).distinct()
+    # --- INICIO MODIFICACIÓN ---
+    
+    # 3. Datos para filtros desplegables (dependientes de la Sede)
+    
+    # Query base para los desplegables (filtrada por sede si existe)
+    query_filtros = Asignatura.objects.all()
+    if sede:
+        query_filtros = query_filtros.filter(sede=sede)
 
-    # Filtro de asignaturas únicas para desplegable (considerando carrera y nivel)
-    asignaturas_filtro = Asignatura.objects.all()
+    carreras = query_filtros.values_list('carrera', flat=True).distinct().order_by('carrera')
+    jornadas = query_filtros.values_list('jornada', flat=True).distinct().order_by('jornada')
+    niveles = query_filtros.values_list('nivel', flat=True).distinct().order_by('nivel')
+
+    # Filtro de asignaturas únicas (también depende de sede, carrera y nivel)
+    asignaturas_filtro = query_filtros.all() # Ya está filtrado por sede
     if carrera:
         asignaturas_filtro = asignaturas_filtro.filter(carrera=carrera)
     if nivel:
         asignaturas_filtro = asignaturas_filtro.filter(nivel=nivel)
-
+    
     asignaturas_unicas = asignaturas_filtro.values('nombre', 'sigla').distinct().order_by('nombre')
+    
+    # --- FIN MODIFICACIÓN ---
 
     return render(request, 'lista_asignaturas.html', {
         'asignaturas': page_obj,
+        'sedes': sedes,  # <- Pasamos la nueva lista de sedes
         'carreras': carreras,
         'jornadas': jornadas,
         'niveles': niveles,

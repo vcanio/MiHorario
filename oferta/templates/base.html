@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>PlannerIA </title>
+    <title>MiHorario </title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="{% static 'css/style.css' %}" />
 </head>
@@ -17,11 +17,11 @@
                 
                 <div class="flex items-center">
                     <div class="flex-shrink-0 text-xl font-semibold text-white">
-                        PlannerIA 
+                        MiHorario 
                     </div>
                     <div class="hidden sm:ml-10 sm:flex items-baseline space-x-4">
-                        <a href="{% url 'inicio' %}" class="text-white hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium">Cargar Excel</a>
-                        <a href="{% url 'lista_asignaturas' %}" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Asignaturas</a>
+                        <a href="{% url 'inicio' %}" class="text-white hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium">Cambiar Sede</a>
+                        <a href="{% url 'lista_asignaturas' %}{% if request.GET.sede %}?sede={{ request.GET.sede }}{% endif %}" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Asignaturas</a>
                     </div>
                 </div>
 
@@ -42,8 +42,8 @@
 
         <div class="sm:hidden hidden" id="mobile-menu">
             <div class="px-2 pt-2 pb-3 space-y-1">
-                <a href="{% url 'inicio' %}" class="text-white block hover:bg-gray-700 px-3 py-2 rounded-md text-base font-medium">Cargar Excel</a>
-                <a href="{% url 'lista_asignaturas' %}" class="text-gray-300 block hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-base font-medium">Asignaturas</a>
+                <a href="{% url 'inicio' %}" class="text-white block hover:bg-gray-700 px-3 py-2 rounded-md text-base font-medium">Cambiar Sede</a>
+                <a href="{% url 'lista_asignaturas' %}{% if request.GET.sede %}?sede={{ request.GET.sede }}{% endif %}" class="text-gray-300 block hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-base font-medium">Asignaturas</a>
             </div>
         </div>
     </nav>
@@ -55,7 +55,7 @@
 
     <footer class="text-center text-sm text-gray-500 mt-12 space-y-2 pb-4">
     <p>
-        <strong class="text-white">PlannerIA </strong> — Desarrollado por
+        <strong class="text-white">MiHorario </strong> — Desarrollado por
         <span class="text-white font-medium">Vicente Canio</span>
         </p>
         <p>

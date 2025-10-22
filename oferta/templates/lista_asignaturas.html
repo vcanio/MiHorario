@@ -2,7 +2,14 @@
 {% load static %}
 
 {% block content %}
-<h1 class="text-3xl font-bold mb-6">Oferta académica</h1>
+<h1 class="text-3xl font-bold mb-6">
+    Oferta académica
+    {% if request.GET.sede %}
+        <span class="text-2xl font-normal text-gray-400"> - {{ request.GET.sede }}</span>
+    {% else %}
+        <span class="text-2xl font-normal text-gray-400"> - (Sin sede seleccionada)</span>
+    {% endif %}
+</h1>
 
 {% include "includes/filtros.html" %}
 {% include "includes/tabla_asignaturas.html" %}
@@ -53,13 +60,27 @@
 
 
 <script>
-    function resetDependientes(campo) {
-        const form = document.forms[0];
-        if (['carrera', 'jornada', 'nivel'].includes(campo)) {
-            if (form.busqueda) {
-                form.busqueda.value = '';
-            }
+    function resetDependientes(campoCambiado) {
+        // 1. Usamos la ID del formulario para evitar errores
+        const form = document.getElementById('filtros-form'); 
+        
+        if (!form) return; // Parar si no se encuentra el formulario
+
+        // 2. Si el usuario cambia la SEDE, reseteamos TODOS los demás filtros
+        if (campoCambiado === 'sede') {
+            if (form.carrera) form.carrera.value = '';
+            if (form.jornada) form.jornada.value = '';
+            if (form.nivel) form.nivel.value = '';
+            if (form.busqueda) form.busqueda.value = '';
         }
+        
+        // 3. Si el usuario cambia CARRERA o NIVEL, reseteamos solo el filtro de asignatura
+        if (['carrera', 'nivel'].includes(campoCambiado)) {
+            if (form.busqueda) form.busqueda.value = '';
+        }
+
+        // 4. Enviamos el formulario. Ahora incluirá el valor de "sede"
+        // (ya que es un campo más del formulario) junto con el campo cambiado.
         form.submit();
     }
 </script>

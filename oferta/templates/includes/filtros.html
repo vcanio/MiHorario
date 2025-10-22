@@ -1,4 +1,8 @@
-<form method="get" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mb-8">
+<form method="get" id="filtros-form" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mb-8">
+    
+    {% if request.GET.sede %}
+        <input type="hidden" name="sede" value="{{ request.GET.sede }}">
+    {% endif %}
     {% include "includes/filtro_select.html" with id="carrera" label="Carrera" opciones=carreras selected=request.GET.carrera %}
     {% include "includes/filtro_select.html" with id="jornada" label="Jornada" opciones=jornadas selected=request.GET.jornada %}
     {% include "includes/filtro_select.html" with id="nivel" label="Nivel" opciones=niveles selected=request.GET.nivel %}

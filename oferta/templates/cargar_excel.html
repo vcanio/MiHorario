@@ -2,7 +2,7 @@
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <title>Inicio | PlannerIA </title>
+    <title>Inicio | MiHorario </title>
     <script src="https://cdn.tailwindcss.com"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
@@ -17,7 +17,7 @@
     <div class="w-full max-w-xl space-y-12">
       <header class="text-center">
         <h1 class="text-5xl font-extrabold text-white mb-4">
-          Planner<span class="text-blue-500">IA</span>
+          Mi<span class="text-blue-500">Horario</span>
         </h1>
         <p class="text-gray-400 text-lg">
           Arma tu horario de manera visual e interactiva, sin topes ni
@@ -59,8 +59,8 @@
           <div class="hidden">{{ form.archivo_excel }}</div>
 
           <label for="{{ form.archivo_excel.id_for_label }}" 
-                 id="file-label"
-                 class="w-full cursor-pointer rounded-md border border-gray-600 bg-gray-700 px-4 py-3 text-center text-gray-200 transition hover:bg-gray-600">
+                id="file-label"
+                class="w-full cursor-pointer rounded-md border border-gray-600 bg-gray-700 px-4 py-3 text-center text-gray-200 transition hover:bg-gray-600">
               <svg xmlns="http://www.w3.org/2000/svg" class="inline-block h-5 w-5 -mt-1 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
               </svg>
@@ -85,7 +85,7 @@
 
       <footer class="text-center text-sm text-gray-500 mt-12 space-y-2">
         <p>
-          <strong class="text-white">PlannerIA </strong> — Desarrollado por
+          <strong class="text-white">MiHorario </strong> — Desarrollado por
           <span class="text-white font-medium">Vicente Canio</span>
         </p>
         <p>
@@ -111,7 +111,7 @@
             });
         }
 
-        // Script para el estado de "cargando" (Sugerencia 3)
+        // Script para el estado de "cargando"
         const uploadForm = document.getElementById('upload-form');
         
         if (uploadForm) {
