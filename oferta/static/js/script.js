@@ -423,74 +423,158 @@ async function exportarComoPDF() {
     const { jsPDF } = window.jspdf;
     const pdf = new jsPDF('p', 'mm', 'a4');
 
-    // 1. Encabezado y asignaturas
-    pdf.setFontSize(18);
-    pdf.text("Horario semanal", 105, 15, { align: 'center' });
+    // --- 1. Configuración de Módulos ---
+    const DUOC_MODULOS = [
+        { inicio: '08:31', fin: '09:10' },
+        { inicio: '09:11', fin: '09:50' },
+        { inicio: '10:01', fin: '10:40' },
+        { inicio: '10:41', fin: '11:20' },
+        { inicio: '11:31', fin: '12:10' },
+        { inicio: '12:11', fin: '12:50' },
+        { inicio: '13:01', fin: '13:40' },
+        { inicio: '13:41', fin: '14:20' },
+        { inicio: '14:31', fin: '15:10' },
+        { inicio: '15:11', fin: '15:50' },
+        { inicio: '16:01', fin: '16:40' },
+        { inicio: '16:41', fin: '17:20' },
+        { inicio: '17:31', fin: '18:10' },
+    ];
 
-    pdf.setFontSize(12);
-    let y = 25;
-    if (Object.keys(seleccionadas).length > 0) {
-        for (const [sigla, datos] of Object.entries(seleccionadas)) {
-            pdf.text(`• ${datos.nombre} (${datos.seccion})${datos.virtual ? " [Virtual]" : ""}`, 10, y);
-            y += 6;
-        }
-    } else {
-        pdf.text("No hay asignaturas seleccionadas", 10, y);
-        y += 6;
-    }
-
-    y += 4;
-
-    // 2. Clonar el horario para quitar scroll y capturarlo completo
-    const original = document.getElementById('horario-container');
-    if (!original) {
-        alert("No se encontró el horario para exportar.");
-        return;
-    }
-
-    const clone = original.cloneNode(true);
-    clone.style.maxHeight = 'none'; // sin límite
-    clone.style.overflow = 'visible';
-    clone.style.height = 'auto';
-    clone.id = 'horario-clone';
-
-    // Insertar fuera de pantalla para no alterar la vista
-    const tempWrapper = document.createElement('div');
-    tempWrapper.style.position = 'absolute';
-    tempWrapper.style.top = '-9999px';
-    tempWrapper.appendChild(clone);
-    document.body.appendChild(tempWrapper);
-
-    // 3. Capturar la tabla completa
-    const canvas = await html2canvas(clone, {
-        scale: 2,
-        useCORS: true
-    });
-
-    // Eliminar el clon temporal
-    document.body.removeChild(tempWrapper);
-
-    // 4. Pasar imagen al PDF
-    const imgData = canvas.toDataURL('image/png');
-    const imgWidth = 190; // mm
+    // --- 2. Geometría ---
+    const MARGIN_LEFT = 10;
+    const MARGIN_TOP = 15;
+    const MARGIN_RIGHT = 10;
+    const MARGIN_BOTTOM = 10;
+    const pageWidth = pdf.internal.pageSize.getWidth();
     const pageHeight = pdf.internal.pageSize.getHeight();
-    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+    const contentWidth = pageWidth - MARGIN_LEFT - MARGIN_RIGHT;
 
-    let heightLeft = imgHeight;
-    let position = y;
+    const DIAS_SEMANA = dias; // ['Lunes', 'Martes', ...]
+    const HORA_COL_WIDTH = 25;
+    const DIA_COL_WIDTH = (contentWidth - HORA_COL_WIDTH) / DIAS_SEMANA.length;
+    const ROW_HEADER_HEIGHT = 10;
+    const ROW_MODULE_HEIGHT = 15;
 
-    pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
-    heightLeft -= (pageHeight - position);
+    let y = MARGIN_TOP;
 
-    while (heightLeft > 0) {
-        pdf.addPage();
-        position = 10;
-        pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
+    // --- 3. Encabezado ---
+    pdf.setFontSize(16).setFont(undefined, 'bold');
+    pdf.text("Duoc UC", MARGIN_LEFT, y);
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const sede = urlParams.get('sede');
+    const carrera = document.getElementById('carrera') ? document.getElementById('carrera').value : '';
+
+    pdf.setFontSize(10).setFont(undefined, 'normal');
+    if (sede) {
+        y += 6;
+        pdf.text(`SEDE: ${sede.toUpperCase()}`, MARGIN_LEFT, y);
+    }
+    if (carrera) {
+        y += 5;
+        pdf.text(`CARRERA: ${carrera.toUpperCase()}`, MARGIN_LEFT, y);
     }
 
-    // 5. Descargar
-    pdf.save("horario.pdf");
+    y += 8;
+    pdf.setFontSize(12).setFont(undefined, 'bold');
+    pdf.text("Horario Personal (MiHorario)", pageWidth / 2, y, { align: 'center' });
+    y += 10;
+
+    // --- 4. Función Auxiliar ---
+    function findAsignaturaInModulo(dia, inicio, fin) {
+        const modStart = parseTime(inicio);
+        const modEnd = parseTime(fin);
+
+        for (const [sigla, datos] of Object.entries(seleccionadas)) {
+            for (const h of datos.horarios) {
+                if (h.dia !== dia) continue;
+                const asigStart = parseTime(h.inicio);
+                const asigEnd = parseTime(h.fin);
+                if (asigStart <= modStart && asigEnd >= modEnd) {
+                    return { ...datos, sigla };
+                }
+            }
+        }
+        return null;
+    }
+
+    // --- 5. Función para dibujar encabezado de tabla ---
+    function drawTableHeader(yPos) {
+        let x = MARGIN_LEFT;
+        pdf.setFontSize(9).setFont(undefined, 'bold');
+        pdf.setDrawColor(100, 100, 100);
+        pdf.setFillColor(230, 230, 230);
+
+        pdf.rect(x, yPos, HORA_COL_WIDTH, ROW_HEADER_HEIGHT, 'FD');
+        pdf.text("Hora", x + HORA_COL_WIDTH / 2, yPos + ROW_HEADER_HEIGHT / 2 + 2, { align: 'center' });
+        x += HORA_COL_WIDTH;
+
+        for (const dia of DIAS_SEMANA) {
+            pdf.setFillColor(230, 230, 230);
+            pdf.rect(x, yPos, DIA_COL_WIDTH, ROW_HEADER_HEIGHT, 'FD');
+
+            pdf.setTextColor(0, 0, 0); // 🔹 importante
+            pdf.text(dia, x + DIA_COL_WIDTH / 2, yPos + ROW_HEADER_HEIGHT / 2 + 2, { align: 'center' });
+            x += DIA_COL_WIDTH;
+        }
+
+        return yPos + ROW_HEADER_HEIGHT;
+    }
+
+    y = drawTableHeader(y);
+
+    // --- 6. Celdas ---
+    for (const modulo of DUOC_MODULOS) {
+        let x = MARGIN_LEFT;
+
+        // Columna Hora
+        pdf.setFontSize(8).setFont(undefined, 'normal');
+        pdf.rect(x, y, HORA_COL_WIDTH, ROW_MODULE_HEIGHT);
+        pdf.text(`${modulo.inicio}\n${modulo.fin}`, x + HORA_COL_WIDTH / 2, y + 6, { align: 'center' });
+        x += HORA_COL_WIDTH;
+
+        // Días
+        for (const dia of DIAS_SEMANA) {
+            pdf.rect(x, y, DIA_COL_WIDTH, ROW_MODULE_HEIGHT);
+            const asignatura = findAsignaturaInModulo(dia, modulo.inicio, modulo.fin);
+
+            if (asignatura) {
+                pdf.setFontSize(7);
+                pdf.setFont(undefined, 'bold');
+
+                // Texto apilado con ajuste dinámico
+                const nombre = pdf.splitTextToSize(asignatura.nombre, DIA_COL_WIDTH - 4);
+                let texto = [...nombre, `${asignatura.seccion}`];
+
+                // Si el texto es muy largo, reducir fuente
+                if (texto.length * 3 > ROW_MODULE_HEIGHT) pdf.setFontSize(6);
+
+                const textY = y + 5;
+                pdf.text(texto, x + DIA_COL_WIDTH / 2, textY, { align: 'center', lineHeightFactor: 1.1 });
+            }
+
+            x += DIA_COL_WIDTH;
+        }
+
+        y += ROW_MODULE_HEIGHT;
+
+        // Control de salto de página
+        if (y + ROW_MODULE_HEIGHT > pageHeight - MARGIN_BOTTOM) {
+            pdf.addPage();
+            y = MARGIN_TOP;
+            y = drawTableHeader(y);
+        }
+    }
+
+    // --- 7. Pie ---
+    pdf.setFontSize(8);
+    pdf.setTextColor(100);
+    const fechaGeneracion = new Date().toLocaleString('es-CL');
+    pdf.text(`Generado por MiHorario el ${fechaGeneracion}`, MARGIN_LEFT, pageHeight - 8);
+    pdf.text(`Página 1 de 1`, pageWidth - MARGIN_RIGHT, pageHeight - 8, { align: 'right' });
+
+    // --- 8. Guardar ---
+    pdf.save("horario_estilo_duoc.pdf");
 }
 
 
