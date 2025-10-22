@@ -65,3 +65,13 @@ python manage.py migrate
 python manage.py runserver
 ```
 💡 **Nota:** En entornos Windows, es posible ejecutar el servidor de desarrollo rápidamente mediante el comando run, el cual invoca el script run.bat incluido en el repositorio.
+
+---
+## 📝 Cómo Usar la App – Resumen Rápido
+
+1️⃣ **Cargar Excel:** Un administrador sube el archivo en `/cargar`. La app guarda las asignaturas.  
+2️⃣ **Seleccionar Sede:** Elige tu sede (Viña del Mar, Santiago, etc.) para filtrar las asignaturas.  
+3️⃣ **Filtrar y Buscar:** Usa filtros por Carrera, Nivel, Jornada o Nombre de asignatura.  
+4️⃣ **Añadir Secciones:** Haz clic **➕** para agregar secciones. La app previene solapamientos.  
+5️⃣ **Visualizar Horario:** Revisa tu calendario interactivo; mueve o elimina secciones si lo necesitas.  
+6️⃣ **Exportar:** Guarda tu horario como PDF o importa a Google Calendar (.ics).  
