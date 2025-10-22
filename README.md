@@ -1,27 +1,34 @@
-# MiHorario – App de horario para estudiantes de Duoc UC
+# 🗓 MiHorario – App de Horario para Estudiantes de Duoc UC
 
-MiHorario es una aplicación web pensada para estudiantes de Duoc UC. Permite cargar el archivo Excel con la oferta académica oficial de tu sede y armar tu horario personalizado de forma visual e interactiva, evitando solapamientos de ramos.
+[![Python](https://img.shields.io/badge/Python-3.13.5-blue)](https://www.python.org/)
+[![Django](https://img.shields.io/badge/Django-5.2.4-green)](https://www.djangoproject.com/)
 
----
-
-## 🛠 Tecnologías
-
-- **Backend:** Django (Python)
-- **Frontend:** HTML5, Tailwind CSS, JavaScript (vanilla)
-- **Base de datos:** SQLite (por defecto de Django)
-- **Dependencias clave:** `pandas`, `openpyxl`
-- **Persistencia cliente:** `localStorage` (horario del estudiante)
+**MiHorario** es una aplicación web que ayuda a los estudiantes de Duoc UC a crear su horario académico de manera visual, interactiva y sin solapamientos. Permite cargar el Excel oficial de tu sede, filtrar asignaturas, construir tu horario y exportarlo a PDF o Google Calendar.  
 
 ---
 
-## 🚀 Funcionalidades principales
+## 🚀 Características Principales
 
--  Carga de asignaturas y horarios desde un archivo Excel.
--  Visualización tabular filtrable por carrera, jornada, nivel y nombre de asignatura.
--  Prevención de solapamientos de horarios al seleccionar asignaturas.
--  Generación de horario semanal visual y dinámico.
--  Persistencia local del horario mediante `localStorage`.
--  Interfaz interactiva con selección/deselección de secciones por asignatura.
+- **📂 Carga por Sede:** Procesa automáticamente el Excel oficial y separa la información por sede.  
+- **🔍 Filtros Dinámicos:** Filtra asignaturas por Carrera, Jornada, Nivel y Nombre de la Asignatura.  
+- **🗓 Constructor Visual de Horarios:** Añade secciones con un clic; previene solapamientos de ramos.  
+- **💾 Persistencia Local:** Guarda tu horario en el navegador (localStorage), evitando pérdida de datos.  
+- **📤 Exportación Rápida:** Exporta tu horario a `.pdf` o `.ics` (compatible con Google Calendar y Outlook).  
+
+---
+
+## 🛠 Tecnologías Utilizadas
+
+**Backend:** Django (Python)  
+**Frontend:** HTML5, Tailwind CSS, JavaScript (vanilla)  
+**Base de Datos:** SQLite  
+
+**Dependencias Python clave:**  
+- `pandas` – Lectura y procesamiento de Excel  
+- `openpyxl` – Lectura de archivos `.xlsx`  
+
+**Dependencias Frontend clave:**  
+- `jsPDF` y `html2canvas` – Generación y exportación de PDF  
 
 ---
 
@@ -58,3 +65,13 @@ python manage.py migrate
 python manage.py runserver
 ```
 💡 **Nota:** En entornos Windows, es posible ejecutar el servidor de desarrollo rápidamente mediante el comando run, el cual invoca el script run.bat incluido en el repositorio.
+
+---
+## 📝 Cómo Usar la App – Resumen Rápido
+
+1️⃣ **Cargar Excel:** Un administrador sube el archivo en `/cargar`. La app guarda las asignaturas.  
+2️⃣ **Seleccionar Sede:** Elige tu sede (Viña del Mar, Santiago, etc.) para filtrar las asignaturas.  
+3️⃣ **Filtrar y Buscar:** Usa filtros por Carrera, Nivel, Jornada o Nombre de asignatura.  
+4️⃣ **Añadir Secciones:** Haz clic **➕** para agregar secciones. La app previene solapamientos.  
+5️⃣ **Visualizar Horario:** Revisa tu calendario interactivo; mueve o elimina secciones si lo necesitas.  
+6️⃣ **Exportar:** Guarda tu horario como PDF o importa a Google Calendar (.ics).  
