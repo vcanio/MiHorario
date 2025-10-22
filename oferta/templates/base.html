@@ -19,10 +19,13 @@
                     <div class="flex-shrink-0 text-xl font-semibold text-white">
                         MiHorario 
                     </div>
-                    <div class="hidden sm:ml-10 sm:flex items-baseline space-x-4">
-                        <a href="{% url 'inicio' %}" class="text-white hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium">Cambiar Sede</a>
-                        <a href="{% url 'lista_asignaturas' %}{% if request.GET.sede %}?sede={{ request.GET.sede }}{% endif %}" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Asignaturas</a>
-                    </div>
+                        <div class="hidden sm:ml-10 sm:flex items-baseline space-x-4">
+                            {% if user.is_superuser %}
+                                <a href="{% url 'cargar_excel' %}" class="text-white hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium">Carga Excel</a>
+                            {% endif %}
+                            <a href="{% url 'inicio' %}" class="text-white hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium">Cambiar Sede</a>
+                            <a href="{% url 'lista_asignaturas' %}{% if request.GET.sede %}?sede={{ request.GET.sede }}{% endif %}" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Asignaturas</a>
+                        </div>
                 </div>
 
                 <div class="sm:hidden flex items-center">

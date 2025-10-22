@@ -2,6 +2,7 @@ from django.db import transaction
 from django.db.models import Q
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import user_passes_test
 
 import pandas as pd
 from datetime import datetime
@@ -25,6 +26,8 @@ def seleccionar_sede(request):
 
 @transaction.atomic
 def cargar_excel(request):
+    if not request.user.is_superuser:
+        return redirect('inicio')
     mensaje_error = None
     if request.method == 'POST':
         form = ExcelUploadForm(request.POST, request.FILES)
