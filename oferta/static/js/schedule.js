@@ -1,8 +1,8 @@
-import { getAsignacion, setAsignacion, getIndiceActual, incrementIndiceActual, getSeleccionadas } from './state.js';
+import { getAsignaciones, getAsignacion, setAsignacion, getIndiceActual, incrementIndiceActual, getSeleccionadas } from './state.js';
 import { colores } from './constants.js';
 
 export function colorDeFondo(sigla) {
-    let asignacion = getAsignacion(sigla); // Esta línea ahora funcionará
+    let asignacion = getAsignacion(sigla);
     if (!asignacion) {
         let indice = getIndiceActual();
         asignacion = colores[indice % colores.length];
@@ -30,9 +30,18 @@ export function generarHoras(inicio, fin) {
     return resultado;
 }
 
-export function haySolapamiento(nuevosHorarios) {
+export function haySolapamiento(nuevosHorarios, siglaDelNuevo) { // <-- AHORA RECIBE LA SIGLA
     const seleccionadas = getSeleccionadas();
     for (const [sigla, { horarios, seccion, nombre }] of Object.entries(seleccionadas)) {
+        
+        // --- INICIO DE LA CORRECCIÓN ---
+        // Si la asignatura existente es la misma que la que intentamos añadir,
+        // saltamos esta comprobación (porque la vamos a reemplazar).
+        if (sigla === siglaDelNuevo) {
+            continue;
+        }
+        // --- FIN DE LA CORRECCIÓN ---
+
         for (const existente of horarios) {
             for (const nuevo of nuevosHorarios) {
                 if (
@@ -40,10 +49,10 @@ export function haySolapamiento(nuevosHorarios) {
                     parseTime(nuevo.inicio) < parseTime(existente.fin) &&
                     parseTime(nuevo.fin) > parseTime(existente.inicio)
                 ) {
-                    return { sigla, seccion, nombre };
+                    return { sigla, seccion, nombre }; // Devuelve el conflicto
                 }
             }
         }
     }
-    return null;
+    return null; // No hay conflictos
 }

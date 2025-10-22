@@ -47,7 +47,11 @@ function seleccionarAsignatura(btn) {
         return;
     }
 
-    const solapado = haySolapamiento(horarios);
+    // --- INICIO DE LA CORRECCIÓN ---
+    // Pasamos la 'sigla' de la asignatura actual a la función de solapamiento.
+    const solapado = haySolapamiento(horarios, sigla);
+    // --- FIN DE LA CORRECCIÓN ---
+
     if (solapado) {
         mostrarModal(
             'Conflicto de Horario',
@@ -131,8 +135,8 @@ function inicializarListeners() {
     });
 
     // Botones de Exportar (reemplazando los 'onclick' del HTML)
-    const btnIcs = document.querySelector('button[onclick*="exportarComoICS"]');
-    if (btnIcs) {
+    const btnIcs = document.querySelector('button[class*="bg-green-600"]'); // Selector más robusto
+    if (btnIcs && btnIcs.textContent.includes('Google Calendar')) {
         btnIcs.onclick = null; // Limpiar atributo antiguo
         btnIcs.addEventListener('click', (e) => {
             e.preventDefault();
@@ -140,8 +144,8 @@ function inicializarListeners() {
         });
     }
 
-    const btnPdf = document.querySelector('button[onclick*="exportarComoPDF"]');
-    if (btnPdf) {
+    const btnPdf = document.querySelector('button[class*="bg-blue-600"]'); // Selector más robusto
+    if (btnPdf && btnPdf.textContent.includes('PDF')) {
         btnPdf.onclick = null; // Limpiar atributo antiguo
         btnPdf.addEventListener('click', (e) => {
             e.preventDefault();
