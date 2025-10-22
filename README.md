@@ -1,7 +1,7 @@
 # 🗓 MiHorario – App de Horario para Estudiantes de Duoc UC
 
-[![Python](https://img.shields.io/badge/Python-3.11-blue)](https://www.python.org/)
-[![Django](https://img.shields.io/badge/Django-4.2-green)](https://www.djangoproject.com/)
+[![Python](https://img.shields.io/badge/Python-3.13.5-blue)](https://www.python.org/)
+[![Django](https://img.shields.io/badge/Django-5.2.4-green)](https://www.djangoproject.com/)
 [![License](https://img.shields.io/badge/License-MIT-yellow)](LICENSE)
 
 **MiHorario** es una aplicación web que ayuda a los estudiantes de Duoc UC a crear su horario académico de manera visual, interactiva y sin solapamientos. Permite cargar el Excel oficial de tu sede, filtrar asignaturas, construir tu horario y exportarlo a PDF o Google Calendar.  
