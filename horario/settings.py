@@ -32,9 +32,6 @@ DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 ALLOWED_HOSTS_STRING = os.environ.get('DJANGO_ALLOWED_HOSTS', '127.0.0.1,localhost')
 ALLOWED_HOSTS = ALLOWED_HOSTS_STRING.split(',')
 
-# Puedes dejarla o moverla a tu variable de entorno DJANGO_ALLOWED_HOSTS.
-# ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'coolify.local:8001', 'coolify.local:9000', '.trycloudflare.com']
-
 CSRF_TRUSTED_ORIGINS = [
     'https://*.trycloudflare.com',
 ]
