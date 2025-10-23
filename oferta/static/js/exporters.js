@@ -74,6 +74,12 @@ export async function exportarComoPDF() {
         { inicio: '16:01', fin: '16:40' },
         { inicio: '16:41', fin: '17:20' },
         { inicio: '17:31', fin: '18:10' },
+        { inicio: '18:11', fin: '18:50' },
+        { inicio: '19:01', fin: '19:40' },
+        { inicio: '19:41', fin: '20:20' },
+        { inicio: '20:31', fin: '21:10' },
+        { inicio: '21:11', fin: '21:50' },
+        { inicio: '22:01', fin: '22:30' },
     ];
 
     // --- 2. Geometría ---
@@ -117,7 +123,13 @@ export async function exportarComoPDF() {
     pdf.text("Horario Personal (MiHorario)", pageWidth / 2, y, { align: 'center' });
     y += 10;
 
-    // --- 4. Función Auxiliar ---
+    // --- 4. Funciones Auxiliares ---
+    function parseTime(timeStr) {
+        if (!timeStr) return 0;
+        const [hours, minutes] = timeStr.split(':').map(Number);
+        return (hours * 60) + minutes;
+    }
+
     function findAsignaturaInModulo(dia, inicio, fin) {
         const modStart = parseTime(inicio);
         const modEnd = parseTime(fin);
@@ -127,6 +139,7 @@ export async function exportarComoPDF() {
                 if (h.dia !== dia) continue;
                 const asigStart = parseTime(h.inicio);
                 const asigEnd = parseTime(h.fin);
+
                 if (asigStart <= modStart && asigEnd >= modEnd) {
                     return { ...datos, sigla };
                 }
@@ -159,8 +172,12 @@ export async function exportarComoPDF() {
 
     y = drawTableHeader(y);
 
-    // --- 6. Celdas ---
+    // --- 6. Celdas: solo dibujar módulos con asignatura ---
     for (const modulo of DUOC_MODULOS) {
+        // Saltar módulo si está vacío
+        const hayAsignatura = DIAS_SEMANA.some(dia => findAsignaturaInModulo(dia, modulo.inicio, modulo.fin) !== null);
+        if (!hayAsignatura) continue;
+
         let x = MARGIN_LEFT;
 
         // Columna Hora
@@ -201,13 +218,19 @@ export async function exportarComoPDF() {
         }
     }
 
-    // --- 7. Pie ---
-    pdf.setFontSize(8);
-    pdf.setTextColor(100);
+    // --- 7. Pie de página ---
+    const totalPages = pdf.internal.getNumberOfPages();
     const fechaGeneracion = new Date().toLocaleString('es-CL');
-    pdf.text(`Generado por MiHorario el ${fechaGeneracion}`, MARGIN_LEFT, pageHeight - 8);
-    pdf.text(`Página 1 de 1`, pageWidth - MARGIN_RIGHT, pageHeight - 8, { align: 'right' });
+
+    for (let i = 1; i <= totalPages; i++) {
+        pdf.setPage(i);
+        pdf.setFontSize(8);
+        pdf.setTextColor(100);
+
+        pdf.text(`Generado por MiHorario el ${fechaGeneracion}`, MARGIN_LEFT, pageHeight - 8);
+        pdf.text(`Página ${i} de ${totalPages}`, pageWidth - MARGIN_RIGHT, pageHeight - 8, { align: 'right' });
+    }
 
     // --- 8. Guardar ---
-    pdf.save("horario_estilo_duoc.pdf");
+    pdf.save("horario.pdf");
 }
