@@ -33,7 +33,7 @@ services:
 
     # Configuración de puertos (Coolify la gestionará, pero es buena práctica)
     ports:
-      - "8000:8000"
+      - "8010:8000"
 
 # Declara el volumen que usaremos para la base de datos
 volumes:
