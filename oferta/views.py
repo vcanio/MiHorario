@@ -10,11 +10,6 @@ from datetime import datetime
 from .forms import ExcelUploadForm
 from .models import Asignatura, Horario
 
-
-# ... (justo después de las importaciones)
-from .forms import ExcelUploadForm
-from .models import Asignatura, Horario
-# Importamos 'reverse' para la redirección en cargar_excel
 from django.urls import reverse 
 
 def seleccionar_sede(request):
@@ -38,8 +33,6 @@ def cargar_excel(request):
             try:
                 df = pd.read_excel(excel_file, sheet_name='Hoja1')
 
-                # --- INICIO DE MODIFICACIÓN ---
-
                 # 1. Identificar la sede del archivo
                 if 'Sede' not in df.columns or df.empty:
                     mensaje_error = 'El archivo Excel no tiene la columna "Sede" o está vacío.'
@@ -56,7 +49,6 @@ def cargar_excel(request):
                 Asignatura.objects.filter(sede=sede_a_cargar).delete()
                 print("Datos antiguos de la sede eliminados.")
                 
-                # --- FIN DE MODIFICACIÓN ---
 
                 # Agrupar datos por Sección
                 agrupadas = df.groupby('Sección')
@@ -128,7 +120,7 @@ def cargar_excel(request):
             except Exception as e:
                 # Si algo falla (ej. lectura de Excel, columna 'Sede' no encontrada)
                 mensaje_error = f"Error al procesar el archivo: {e}"
-                # Hacemos rollback manual de la transacción si es necesario (aunque @transaction.atomic ayuda)
+                # Hacemos rollback manual de la transacción si es necesario
                 Asignatura.objects.filter(sede=sede_a_cargar).delete()
                 print(f"Error: {e}")
 
@@ -145,7 +137,6 @@ def lista_asignaturas(request):
     # Query base
     asignaturas_query = Asignatura.objects.all()
 
-    # --- INICIO MODIFICACIÓN ---
     
     # 1. Filtro principal: Sede
     sedes = Asignatura.objects.values_list('sede', flat=True).distinct().order_by('sede')
@@ -153,7 +144,6 @@ def lista_asignaturas(request):
     if sede:
         asignaturas_query = asignaturas_query.filter(sede=sede)
     
-    # --- FIN MODIFICACIÓN ---
 
     # 2. Filtros dependientes
     carrera = request.GET.get('carrera')
@@ -186,13 +176,11 @@ def lista_asignaturas(request):
 
     # Paginación
     page = request.GET.get('page', 1)
-    paginator = Paginator(asignaturas_list, 20)
+    paginator = Paginator(asignaturas_list, 10)
     try:
         page_obj = paginator.page(page)
     except (PageNotAnInteger, EmptyPage):
         page_obj = paginator.page(1)
-
-    # --- INICIO MODIFICACIÓN ---
     
     # 3. Datos para filtros desplegables (dependientes de la Sede)
     
@@ -206,7 +194,7 @@ def lista_asignaturas(request):
     niveles = query_filtros.values_list('nivel', flat=True).distinct().order_by('nivel')
 
     # Filtro de asignaturas únicas (también depende de sede, carrera y nivel)
-    asignaturas_filtro = query_filtros.all() # Ya está filtrado por sede
+    asignaturas_filtro = query_filtros.all()
     if carrera:
         asignaturas_filtro = asignaturas_filtro.filter(carrera=carrera)
     if nivel:
@@ -218,7 +206,7 @@ def lista_asignaturas(request):
 
     return render(request, 'lista_asignaturas.html', {
         'asignaturas': page_obj,
-        'sedes': sedes,  # <- Pasamos la nueva lista de sedes
+        'sedes': sedes,
         'carreras': carreras,
         'jornadas': jornadas,
         'niveles': niveles,

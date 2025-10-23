@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
-from dotenv import load_dotenv  # Importaste esto
+from dotenv import load_dotenv
 import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -84,10 +84,7 @@ WSGI_APPLICATION = 'horario.wsgi.application'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 # Base de datos por entorno
-# Esta lógica ahora funciona perfectamente, ya que `DEBUG`
-# se establece correctamente desde tu archivo .env.
 if DEBUG:
-    # Desarrollo: SQLite (cuando DEBUG=True en .env)
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
@@ -95,7 +92,6 @@ if DEBUG:
         }
     }
 else:
-    # Producción: PostgreSQL (cuando DEBUG=False o no está definido)
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
