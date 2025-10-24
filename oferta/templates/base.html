@@ -1,102 +1,146 @@
 {% load static %}
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>MiHorario </title>
+    <title>MiHorario</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="{% static 'css/style.css' %}" />
 </head>
+
 <body class="bg-gray-900 text-white min-h-screen flex flex-col">
 
+    <!-- NAVBAR -->
     <nav class="bg-gray-800">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
-                
+
+                <!-- LOGO Y LINKS -->
                 <div class="flex items-center">
-                    <div class="flex-shrink-0 text-xl font-semibold text-white">
-                        MiHorario 
+                    <div class="text-xl font-semibold text-white">MiHorario</div>
+                    <div class="hidden sm:ml-10 sm:flex items-baseline space-x-4">
+                        {% if user.is_superuser %}
+                            <a href="{% url 'cargar_excel' %}" class="text-white hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium">
+                                Carga Excel
+                            </a>
+                        {% endif %}
+                        <a href="{% url 'inicio' %}" class="text-white hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium">
+                            Cambiar Sede
+                        </a>
+                        <a href="{% url 'lista_asignaturas' %}{% if request.GET.sede %}?sede={{ request.GET.sede }}{% endif %}" 
+                        class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
+                            Asignaturas
+                        </a>
                     </div>
-                        <div class="hidden sm:ml-10 sm:flex items-baseline space-x-4">
-                            {% if user.is_superuser %}
-                                <a href="{% url 'cargar_excel' %}" class="text-white hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium">Carga Excel</a>
-                            {% endif %}
-                            <a href="{% url 'inicio' %}" class="text-white hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium">Cambiar Sede</a>
-                            <a href="{% url 'lista_asignaturas' %}{% if request.GET.sede %}?sede={{ request.GET.sede }}{% endif %}" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Asignaturas</a>
-                        </div>
                 </div>
 
+                <!-- SESIÓN -->
+                <div class="hidden sm:flex sm:items-center">
+                    {% if user.is_authenticated %}
+                        <span class="text-gray-300 text-sm mr-4">Hola, {{ user.username }}</span>
+                        <form method="post" action="{% url 'logout' %}" class="inline">
+                            {% csrf_token %}
+                            <button type="submit" 
+                                    class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium bg-transparent border-none cursor-pointer">
+                                Cerrar Sesión
+                            </button>
+                        </form>
+                    {% else %}
+                        <a href="{% url 'login' %}" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
+                            Iniciar Sesión
+                        </a>
+                        <a href="{% url 'registro' %}" class="ml-4 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-md text-sm font-medium">
+                            Registrarse
+                        </a>
+                    {% endif %}
+                </div>
+
+                <!-- BOTÓN MENÚ MÓVIL -->
                 <div class="sm:hidden flex items-center">
-                    <button id="mobile-menu-button" type="button" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white" aria-controls="mobile-menu" aria-expanded="false">
-                        <span class="sr-only">Abrir menú principal</span>
-                        <svg class="block h-6 w-6" id="icon-open" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    <button id="mobile-menu-button" type="button" 
+                            class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none"
+                            aria-controls="mobile-menu" aria-expanded="false">
+                        <!-- Icono hamburguesa -->
+                        <svg id="icon-open" class="h-6 w-6 block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 6h16M4 12h16M4 18h16" />
                         </svg>
-                        <svg class="hidden h-6 w-6" id="icon-close" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        <!-- Icono X -->
+                        <svg id="icon-close" class="h-6 w-6 hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12" />
                         </svg>
                     </button>
                 </div>
-
             </div>
         </div>
 
+        <!-- MENÚ MÓVIL -->
         <div class="sm:hidden hidden" id="mobile-menu">
             <div class="px-2 pt-2 pb-3 space-y-1">
-                <a href="{% url 'inicio' %}" class="text-white block hover:bg-gray-700 px-3 py-2 rounded-md text-base font-medium">Cambiar Sede</a>
-                <a href="{% url 'lista_asignaturas' %}{% if request.GET.sede %}?sede={{ request.GET.sede }}{% endif %}" class="text-gray-300 block hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-base font-medium">Asignaturas</a>
+                <a href="{% url 'inicio' %}" class="text-white block hover:bg-gray-700 px-3 py-2 rounded-md text-base font-medium">
+                    Cambiar Sede
+                </a>
+                <a href="{% url 'lista_asignaturas' %}{% if request.GET.sede %}?sede={{ request.GET.sede }}{% endif %}" 
+                class="text-gray-300 block hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-base font-medium">
+                    Asignaturas
+                </a>
+
+                <div class="border-t border-gray-700 my-2"></div>
+
+                {% if user.is_authenticated %}
+                    <span class="text-gray-400 block px-3 py-2 text-base font-medium">
+                        Hola, {{ user.username }}
+                    </span>
+                    <form method="post" action="{% url 'logout' %}" class="block">
+                        {% csrf_token %}
+                        <button type="submit" 
+                                class="w-full text-left text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-base font-medium">
+                            Cerrar Sesión
+                        </button>
+                    </form>
+                {% else %}
+                    <a href="{% url 'login' %}" class="text-gray-300 block hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-base font-medium">
+                        Iniciar Sesión
+                    </a>
+                    <a href="{% url 'registro' %}" class="text-gray-300 block hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-base font-medium">
+                        Registrarse
+                    </a>
+                {% endif %}
             </div>
         </div>
     </nav>
 
+    <!-- CONTENIDO -->
     <main class="flex-grow max-w-7xl mx-auto py-6 sm:px-6 lg:px-8 w-full px-4">
-        {% block content %}
-        {% endblock %}
+        {% block content %}{% endblock %}
     </main>
 
+    <!-- FOOTER -->
     <footer class="text-center text-sm text-gray-500 mt-12 space-y-2 pb-4">
-    <p>
-        <strong class="text-white">MiHorario </strong> — Desarrollado por
-        <span class="text-white font-medium">Vicente Canio</span>
+        <p>
+            <strong class="text-white">MiHorario</strong> — Desarrollado por
+            <span class="text-white font-medium">Vicente Canio</span>
         </p>
         <p>
-        Proyecto para estudiantes de <span class="text-blue-400 font-semibold">Duoc UC</span>
-    </p>
+            Proyecto para estudiantes de <span class="text-blue-400 font-semibold">Duoc UC</span>
+        </p>
     </footer>
 
+    <!-- SCRIPT -->
     <script>
-        document.getElementById('mobile-menu-button').addEventListener('click', function() {
-            var menu = document.getElementById('mobile-menu');
-            var iconOpen = document.getElementById('icon-open');
-            var iconClose = document.getElementById('icon-close');
-            
-            var isExpanded = this.getAttribute('aria-expanded') === 'true';
-            
-            if (isExpanded) {
-                // Ocultar menú
-                menu.classList.add('hidden');
-                // Mostrar icono hamburguesa
-                iconOpen.classList.remove('hidden');
-                iconOpen.classList.add('block');
-                // Ocultar icono 'X'
-                iconClose.classList.add('hidden');
-                iconClose.classList.remove('block');
-                // Actualizar estado ARIA
-                this.setAttribute('aria-expanded', 'false');
-            } else {
-                // Mostrar menú
-                menu.classList.remove('hidden');
-                // Ocultar icono hamburguesa
-                iconOpen.classList.add('hidden');
-                iconOpen.classList.remove('block');
-                // Mostrar icono 'X'
-                iconClose.classList.remove('hidden');
-                iconClose.classList.add('block');
-                // Actualizar estado ARIA
-                this.setAttribute('aria-expanded', 'true');
-            }
+        const menuButton = document.getElementById('mobile-menu-button');
+        const menu = document.getElementById('mobile-menu');
+        const iconOpen = document.getElementById('icon-open');
+        const iconClose = document.getElementById('icon-close');
+
+        menuButton.addEventListener('click', () => {
+            const isExpanded = menuButton.getAttribute('aria-expanded') === 'true';
+            menuButton.setAttribute('aria-expanded', !isExpanded);
+            menu.classList.toggle('hidden');
+            iconOpen.classList.toggle('hidden');
+            iconClose.classList.toggle('hidden');
         });
     </script>
 

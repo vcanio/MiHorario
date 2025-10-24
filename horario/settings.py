@@ -149,3 +149,13 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+# --- CONFIGURACIÓN DE AUTENTICACIÓN ---
+# A dónde ir después de iniciar sesión
+LOGIN_REDIRECT_URL = 'inicio' 
+
+# A dónde ir si se intenta acceder a una página protegida sin loguearse
+LOGIN_URL = 'login' 
+
+# A dónde ir después de cerrar sesión
+LOGOUT_REDIRECT_URL = 'inicio'
