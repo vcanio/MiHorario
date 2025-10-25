@@ -259,6 +259,13 @@ def guardar_horario(request):
 
         if not nombre:
             return JsonResponse({'error': 'El nombre es requerido'}, status=400)
+        
+        MAX_NOMBRE_LENGTH = 30 # Define el límite que quieras
+        if len(nombre) > MAX_NOMBRE_LENGTH:
+                    return JsonResponse({
+                        'error': f'El nombre no puede tener más de {MAX_NOMBRE_LENGTH} caracteres'
+                    }, status=400)
+
         if not asignaturas_ids:
             return JsonResponse({'error': 'Debes seleccionar al menos una asignatura'}, status=400)
 
