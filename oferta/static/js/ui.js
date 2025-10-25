@@ -146,3 +146,53 @@ export function actualizarHorario() {
         renderClases(horarioBase);
     }
 }
+
+// --- INICIO DE MODIFICACIONES: Funciones de Utilidad ---
+
+// ============================================================
+// Obtener token CSRF de Django
+// ============================================================
+export function getCsrfToken() {
+    const token =
+        document.querySelector('[name=csrfmiddlewaretoken]')?.value ||
+        document.querySelector('input[name="csrfmiddlewaretoken"]')?.value ||
+        document.querySelector('meta[name="csrf-token"]')?.content ||
+        '';
+    return token;
+}
+
+// ============================================================
+// Sistema de notificaciones
+// ============================================================
+export function mostrarNotificacion(mensaje, tipo = 'info') {
+    const container =
+        document.getElementById('notificaciones-container') || crearContenedorNotificaciones();
+
+    const colores = {
+        success: 'bg-green-600',
+        error: 'bg-red-600',
+        info: 'bg-blue-600'
+    };
+
+    const notif = document.createElement('div');
+    notif.className = `${colores[tipo]} text-white px-4 py-3 rounded-lg shadow-lg mb-2 animate-fade-in`;
+    notif.textContent = mensaje;
+
+    container.appendChild(notif);
+
+    setTimeout(() => {
+        notif.style.opacity = '0';
+        notif.style.transform = 'translateY(-10px)';
+        notif.style.transition = 'all 0.3s ease';
+        setTimeout(() => notif.remove(), 300);
+    }, 3000);
+}
+
+function crearContenedorNotificaciones() {
+    const container = document.createElement('div');
+    container.id = 'notificaciones-container';
+    container.className = 'fixed top-4 right-4 z-50 space-y-2';
+    document.body.appendChild(container);
+    return container;
+}
+// --- FIN DE MODIFICACIONES ---

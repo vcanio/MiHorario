@@ -1,0 +1,111 @@
+<div id="modal-solapamiento" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75 hidden">
+    <div class="relative w-full max-w-md p-6 bg-gray-800 rounded-lg shadow-xl border border-gray-700">
+        
+        <div class="flex items-center justify-center mb-4">
+            <div class="flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-900 sm:mx-0 sm:h-10 sm:w-10">
+                <svg class="h-6 w-6 text-red-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+                </svg>
+            </div>
+        </div>
+        
+        <h3 id="modal-titulo" class="text-lg font-semibold text-center text-white mb-2">
+            Conflicto de Horario
+        </h3>
+        <p id="modal-mensaje" class="text-sm text-center text-gray-300 mb-6">
+            El mensaje de error irá aquí.
+        </p>
+
+        <div class="text-center">
+            <button id="modal-btn-cerrar" type="button" class="w-full sm:w-auto inline-flex justify-center rounded-md border border-transparent shadow-sm px-6 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-gray-800">
+                Entendido
+            </button>
+        </div>
+    </div>
+</div>
+<div id="modal-confirmacion" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75 hidden">
+    <div class="relative w-full max-w-md p-6 bg-gray-800 rounded-lg shadow-xl border border-gray-700">
+        
+        <div class="flex items-center justify-center mb-4">
+            <div class="flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-blue-900 sm:mx-0 sm:h-10 sm:w-10">
+                <svg class="h-6 w-6 text-blue-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />
+                </svg>
+            </div>
+        </div>
+        
+        <h3 id="confirm-modal-titulo" class="text-lg font-semibold text-center text-white mb-2">
+            Confirmar Reemplazo
+        </h3>
+        <p id="confirm-modal-mensaje" class="text-sm text-center text-gray-300 mb-6">
+            El mensaje de confirmación irá aquí.
+        </p>
+
+        <div class="flex flex-col-reverse sm:flex-row sm:justify-center sm:gap-4">
+            <button id="confirm-modal-btn-cancelar" type="button" class="w-full sm:w-auto inline-flex justify-center rounded-md border border-gray-600 shadow-sm px-6 py-2 bg-gray-700 text-base font-medium text-white hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 focus:ring-offset-gray-800 mt-3 sm:mt-0">
+                Cancelar
+            </button>
+            <button id="confirm-modal-btn-aceptar" type="button" class="w-full sm:w-auto inline-flex justify-center rounded-md border border-transparent shadow-sm px-6 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 focus:ring-offset-gray-800">
+                Reemplazar
+            </button>
+        </div>
+    </div>
+</div>
+
+<div id="modal-guardar-horario" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75 hidden">
+    <div class="relative w-full max-w-md p-6 bg-gray-800 rounded-lg shadow-xl border border-gray-700">
+        
+        <h3 id="guardar-modal-titulo" class="text-lg font-semibold text-center text-white mb-4">
+            Guardar Horario
+        </h3>
+        
+        <div class="flex flex-col gap-4">
+            <div>
+                <label for="guardar-horario-nombre" class="block text-sm font-medium text-gray-300 mb-2">
+                    Nombre del horario
+                </label>
+                <input type="text" id="guardar-horario-nombre" 
+                    class="w-full px-4 py-3 rounded-lg border border-gray-600 bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Ej: Horario Ideal">
+                <p id="guardar-modal-error" class="text-red-400 text-sm mt-2 hidden"></p>
+            </div>
+
+            <div class="flex flex-col-reverse sm:flex-row sm:justify-center sm:gap-4">
+                <button id="guardar-modal-btn-cancelar" type="button" class="w-full sm:w-auto inline-flex justify-center rounded-md border border-gray-600 shadow-sm px-6 py-2 bg-gray-700 text-base font-medium text-white hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 focus:ring-offset-gray-800 mt-3 sm:mt-0">
+                    Cancelar
+                </button>
+                <button id="guardar-modal-btn-aceptar" type="button" class="w-full sm:w-auto inline-flex justify-center rounded-md border border-transparent shadow-sm px-6 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-gray-800">
+                    Guardar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="modal-eliminar-horario" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75 hidden">
+    <div class="relative w-full max-w-md p-6 bg-gray-800 rounded-lg shadow-xl border border-gray-700">
+        
+        <div class="flex items-center justify-center mb-4">
+            <div class="flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-900 sm:mx-0 sm:h-10 sm:w-10">
+                <svg class="h-6 w-6 text-red-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+                </svg>
+            </div>
+        </div>
+        
+        <h3 id="eliminar-modal-titulo" class="text-lg font-semibold text-center text-white mb-2">
+            Confirmar Eliminación
+        </h3>
+        <p id="eliminar-modal-mensaje" class="text-sm text-center text-gray-300 mb-6">
+            ¿Estás seguro de que quieres eliminar este horario? Esta acción no se puede deshacer.
+        </p>
+
+        <div class="flex flex-col-reverse sm:flex-row sm:justify-center sm:gap-4">
+            <button id="eliminar-modal-btn-cancelar" type="button" class="w-full sm:w-auto inline-flex justify-center rounded-md border border-gray-600 shadow-sm px-6 py-2 bg-gray-700 text-base font-medium text-white hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 focus:ring-offset-gray-800 mt-3 sm:mt-0">
+                Cancelar
+            </button>
+            <button id="eliminar-modal-btn-aceptar" type="button" class="w-full sm:w-auto inline-flex justify-center rounded-md border border-transparent shadow-sm px-6 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 focus:ring-offset-gray-800">
+                Eliminar
+            </button>
+        </div>
+    </div>
+</div>

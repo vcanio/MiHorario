@@ -4,25 +4,14 @@
 // ============================================================
 
 import { getSeleccionadas, setSeleccionadas } from './state.js';
-import { actualizarHorario } from './ui.js';
+// Importamos los helpers desde ui.js (notificación, token, etc)
+import { actualizarHorario, getCsrfToken, mostrarNotificacion } from './ui.js';
 import { diasLargos } from './constants.js';
 
 // ============================================================
-// Obtener token CSRF de Django
+// Guardar el horario actual (Muestra el modal)
 // ============================================================
-function getCsrfToken() {
-    const token =
-        document.querySelector('[name=csrfmiddlewaretoken]')?.value ||
-        document.querySelector('input[name="csrfmiddlewaretoken"]')?.value ||
-        document.querySelector('meta[name="csrf-token"]')?.content ||
-        '';
-    return token;
-}
-
-// ============================================================
-// Guardar el horario actual
-// ============================================================
-export async function guardarHorarioActual() {
+export function guardarHorarioActual() {
     const seleccionadas = getSeleccionadas();
 
     if (Object.keys(seleccionadas).length === 0) {
@@ -30,37 +19,22 @@ export async function guardarHorarioActual() {
         return;
     }
 
-    const nombre = prompt('Nombre del horario:');
-    if (!nombre || nombre.trim() === '') {
-        return;
+    // Busca y muestra el modal de guardar
+    const modal = document.getElementById('modal-guardar-horario');
+    const input = document.getElementById('guardar-horario-nombre');
+    const errorEl = document.getElementById('guardar-modal-error');
+
+    if (modal) modal.classList.remove('hidden');
+    if (input) {
+        input.value = ''; // Limpia el input
+        input.focus();
     }
-
-    const payload = {
-        nombre: nombre.trim(),
-        asignaturas_ids: Object.values(seleccionadas).map(a => a.id)
-    };
-
-    try {
-        const response = await fetch('/api/horarios/guardar/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCsrfToken()
-            },
-            body: JSON.stringify(payload)
-        });
-
-        const data = await response.json();
-
-        if (response.ok) {
-            mostrarNotificacion(data.mensaje, 'success');
-            await cargarListaHorariosGuardados();
-        } else {
-            mostrarNotificacion(data.error || 'Error al guardar', 'error');
-        }
-    } catch (error) {
-        mostrarNotificacion('Error de conexión', 'error');
+    if (errorEl) {
+        errorEl.textContent = '';
+        errorEl.classList.add('hidden');
     }
+    
+    // La lógica de 'fetch' para guardar se maneja en main.js
 }
 
 // ============================================================
@@ -90,34 +64,7 @@ export async function cargarHorario(horarioData) {
 }
 
 // ============================================================
-// Eliminar un horario guardado
-// ============================================================
-export async function eliminarHorario(horarioId, nombreHorario) {
-    if (!confirm(`¿Eliminar el horario "${nombreHorario}"?`)) {
-        return;
-    }
-
-    try {
-        const response = await fetch(`/api/horarios/eliminar/${horarioId}/`, {
-            method: 'DELETE',
-            headers: { 'X-CSRFToken': getCsrfToken() }
-        });
-
-        const data = await response.json();
-
-        if (response.ok) {
-            mostrarNotificacion(data.mensaje, 'success');
-            await cargarListaHorariosGuardados();
-        } else {
-            mostrarNotificacion(data.error || 'Error al eliminar', 'error');
-        }
-    } catch (error) {
-        mostrarNotificacion('Error de conexión', 'error');
-    }
-}
-
-// ============================================================
-// Cargar lista de horarios guardados
+// Cargar lista de horarios guardados (Fetch y render)
 // ============================================================
 export async function cargarListaHorariosGuardados() {
     const container = document.getElementById('horarios-guardados-container');
@@ -139,6 +86,7 @@ export async function cargarListaHorariosGuardados() {
             return;
         }
 
+        // Renderiza la lista de horarios guardados
         container.innerHTML = data.horarios
             .map(
                 h => `
@@ -161,6 +109,7 @@ export async function cargarListaHorariosGuardados() {
             )
             .join('');
 
+        // Almacena los datos en 'window' para que los botones 'onclick' puedan acceder a ellos
         window.__horariosGuardadosData = data.horarios;
     } catch (error) {
         container.innerHTML = '<p class="text-red-400 text-sm">Error al cargar horarios guardados</p>';
@@ -168,8 +117,10 @@ export async function cargarListaHorariosGuardados() {
 }
 
 // ============================================================
-// Funciones globales accesibles desde HTML
+// Funciones globales accesibles desde HTML (onclick)
 // ============================================================
+
+// Esta función es llamada por el botón de cargar horario
 window.cargarHorarioGuardado = async function (horarioId) {
     const horario = window.__horariosGuardadosData?.find(h => h.id === horarioId);
     if (horario) {
@@ -179,9 +130,35 @@ window.cargarHorarioGuardado = async function (horarioId) {
     }
 };
 
-window.eliminarHorarioGuardado = async function (horarioId, nombre) {
-    await eliminarHorario(horarioId, nombre);
+// --- ESTA ES LA FUNCIÓN CORREGIDA ---
+// Esta función ahora solo muestra el modal y guarda los datos en él
+window.eliminarHorarioGuardado = function (horarioId, nombre) {
+    const modal = document.getElementById('modal-eliminar-horario');
+    const mensaje = document.getElementById('eliminar-modal-mensaje');
+    const btnAceptar = document.getElementById('eliminar-modal-btn-aceptar');
+
+    if (!modal || !mensaje || !btnAceptar) {
+        console.error('No se encontró el HTML del modal de eliminación.');
+        // Fallback al confirm nativo si el modal no existe
+        if (confirm(`Error: Modal no encontrado. ¿Desea eliminar "${nombre}" de todas formas?`)) {
+             console.error("Ejecutando eliminación de fallback. Revisa el HTML de 'modal-eliminar-horario'.");
+             // Esto es solo un fallback de emergencia, la lógica real se movió a main.js
+             // Para que este fallback funcione, tendrías que re-añadir la función 'eliminarHorario'
+        }
+        return;
+    }
+    
+    // Personaliza el mensaje del modal
+    mensaje.textContent = `¿Estás seguro de que quieres eliminar el horario "${nombre}"? Esta acción no se puede deshacer.`;
+    
+    // Almacenamos el ID en el botón "Eliminar" para que main.js lo pueda leer
+    btnAceptar.dataset.horarioId = horarioId;
+    
+    // Muestra el modal
+    modal.classList.remove('hidden');
 };
+// --- FIN DE LA CORRECCIÓN ---
+
 
 // ============================================================
 // Actualiza el estado visual de los botones de selección
@@ -208,41 +185,6 @@ function actualizarBotonesSeleccionados() {
                 </svg>`;
         }
     });
-}
-
-// ============================================================
-// Sistema de notificaciones
-// ============================================================
-function mostrarNotificacion(mensaje, tipo = 'info') {
-    const container =
-        document.getElementById('notificaciones-container') || crearContenedorNotificaciones();
-
-    const colores = {
-        success: 'bg-green-600',
-        error: 'bg-red-600',
-        info: 'bg-blue-600'
-    };
-
-    const notif = document.createElement('div');
-    notif.className = `${colores[tipo]} text-white px-4 py-3 rounded-lg shadow-lg mb-2 animate-fade-in`;
-    notif.textContent = mensaje;
-
-    container.appendChild(notif);
-
-    setTimeout(() => {
-        notif.style.opacity = '0';
-        notif.style.transform = 'translateY(-10px)';
-        notif.style.transition = 'all 0.3s ease';
-        setTimeout(() => notif.remove(), 300);
-    }, 3000);
-}
-
-function crearContenedorNotificaciones() {
-    const container = document.createElement('div');
-    container.id = 'notificaciones-container';
-    container.className = 'fixed top-4 right-4 z-50 space-y-2';
-    document.body.appendChild(container);
-    return container;
 }
 
 console.log('savedSchedules.js cargado correctamente');

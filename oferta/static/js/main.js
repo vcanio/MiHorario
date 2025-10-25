@@ -10,6 +10,7 @@ import {
     removeSeleccionada,
     hasAsignaturaSeleccionada,
     getAsignaturaSeleccionada,
+    getSeleccionadas, 
     setConfirmCallback,
     getConfirmCallback
 } from './state.js';
@@ -23,9 +24,12 @@ import {
     ocultarModal,
     mostrarModalConfirmacion,
     ocultarModalConfirmacion,
-    actualizarHorario
+    actualizarHorario,
+    getCsrfToken, 
+    mostrarNotificacion 
 } from './ui.js';
 import { exportarComoICS, exportarComoPDF } from './exporters.js';
+// Importamos las funciones que MUESTRAN los modales
 import { guardarHorarioActual, cargarListaHorariosGuardados } from './savedSchedules.js';
 
 window.exportarComoICS = exportarComoICS;
@@ -33,9 +37,8 @@ window.exportarComoPDF = exportarComoPDF;
 
 console.log('main.js cargado correctamente');
 
-// ============================================================
-// Quitar asignatura seleccionada
-// ============================================================
+// ... (Las funciones quitarAsignatura, seleccionarAsignatura, actualizarBotones no cambian) ...
+
 function quitarAsignatura(sigla) {
     removeSeleccionada(sigla);
     actualizarHorario();
@@ -46,9 +49,6 @@ function quitarAsignatura(sigla) {
     });
 }
 
-// ============================================================
-// Seleccionar o reemplazar una asignatura
-// ============================================================
 function seleccionarAsignatura(btn) {
     const { sigla, seccion, nombre, id, virtual } = btn.dataset;
     let horarios;
@@ -102,9 +102,6 @@ function seleccionarAsignatura(btn) {
     actualizarBotones(sigla, seccion);
 }
 
-// ============================================================
-// Actualizar botones de selección visualmente
-// ============================================================
 function actualizarBotones(sigla, seccionSeleccionada) {
     document.querySelectorAll(`.seleccionar-btn[data-sigla="${sigla}"]`).forEach(b => {
         b.disabled = b.dataset.seccion === seccionSeleccionada;
@@ -112,11 +109,12 @@ function actualizarBotones(sigla, seccionSeleccionada) {
     });
 }
 
+
 // ============================================================
 // Inicializar todos los listeners de la aplicación
 // ============================================================
 function inicializarListeners() {
-    // === Modales ===
+    // === Modales (Solapamiento y Confirmación) ===
     if (modalBtnCerrar) modalBtnCerrar.addEventListener('click', ocultarModal);
     if (modal) modal.addEventListener('click', e => e.target === modal && ocultarModal());
     if (confirmModalBtnCancelar) confirmModalBtnCancelar.addEventListener('click', ocultarModalConfirmacion);
@@ -172,12 +170,114 @@ function inicializarListeners() {
         });
     }
 
-    // === Guardar Horario ===
+    // === Guardar Horario (Botón principal) ===
     const btnGuardarHorario = document.getElementById('btn-guardar-horario');
     if (btnGuardarHorario) {
         btnGuardarHorario.addEventListener('click', e => {
             e.preventDefault();
-            guardarHorarioActual();
+            guardarHorarioActual(); // <-- Esto ahora muestra el modal
+        });
+    }
+    
+    // === Listeners para Modal Guardar (Lógica Fetch) ===
+    const modalGuardar = document.getElementById('modal-guardar-horario');
+    const btnGuardarAceptar = document.getElementById('guardar-modal-btn-aceptar');
+    const btnGuardarCancelar = document.getElementById('guardar-modal-btn-cancelar');
+    const inputNombre = document.getElementById('guardar-horario-nombre');
+    const errorEl = document.getElementById('guardar-modal-error');
+
+    function hideModalGuardar() {
+        if (modalGuardar) modalGuardar.classList.add('hidden');
+        if (errorEl) errorEl.classList.add('hidden');
+    }
+
+    if (btnGuardarCancelar) btnGuardarCancelar.addEventListener('click', hideModalGuardar);
+    if (modalGuardar) modalGuardar.addEventListener('click', e => e.target === modalGuardar && hideModalGuardar());
+
+    if (btnGuardarAceptar) {
+        btnGuardarAceptar.addEventListener('click', async () => {
+            const nombre = inputNombre.value.trim();
+            if (!nombre) {
+                errorEl.textContent = 'Por favor, introduce un nombre.';
+                errorEl.classList.remove('hidden');
+                return;
+            }
+            
+            errorEl.classList.add('hidden');
+            const seleccionadas = getSeleccionadas();
+            const payload = {
+                nombre: nombre,
+                asignaturas_ids: Object.values(seleccionadas).map(a => a.id)
+            };
+
+            try {
+                const response = await fetch('/api/horarios/guardar/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCsrfToken()
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    hideModalGuardar();
+                    mostrarNotificacion(data.mensaje, 'success');
+                    await cargarListaHorariosGuardados();
+                } else {
+                    errorEl.textContent = data.error || 'Error desconocido al guardar';
+                    errorEl.classList.remove('hidden');
+                }
+            } catch (error) {
+                errorEl.textContent = 'Error de conexión con el servidor.';
+                errorEl.classList.remove('hidden');
+            }
+        });
+    }
+    
+    // === Listeners para Modal Eliminar (Lógica Fetch) ===
+    const modalEliminar = document.getElementById('modal-eliminar-horario');
+    const btnEliminarAceptar = document.getElementById('eliminar-modal-btn-aceptar');
+    const btnEliminarCancelar = document.getElementById('eliminar-modal-btn-cancelar');
+
+    function hideModalEliminar() {
+        if (modalEliminar) modalEliminar.classList.add('hidden');
+    }
+
+    if (btnEliminarCancelar) btnEliminarCancelar.addEventListener('click', hideModalEliminar);
+    if (modalEliminar) modalEliminar.addEventListener('click', e => e.target === modalEliminar && hideModalEliminar());
+
+    if (btnEliminarAceptar) {
+        btnEliminarAceptar.addEventListener('click', async (e) => {
+            // Leemos el ID guardado en el botón por savedSchedules.js
+            const horarioId = e.currentTarget.dataset.horarioId;
+            if (!horarioId) {
+                mostrarNotificacion('Error: No se encontró el ID del horario a eliminar', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/horarios/eliminar/${horarioId}/`, {
+                    method: 'DELETE',
+                    headers: { 'X-CSRFToken': getCsrfToken() }
+                });
+
+                const data = await response.json();
+
+                hideModalEliminar();
+
+                if (response.ok) {
+                    mostrarNotificacion(data.mensaje, 'success');
+                    await cargarListaHorariosGuardados(); // Recarga la lista
+                } else {
+                    mostrarNotificacion(data.error || 'Error al eliminar', 'error');
+                }
+            } catch (error) {
+                hideModalEliminar();
+                mostrarNotificacion('Error de conexión', 'error');
+            }
         });
     }
 }

@@ -1,20 +1,30 @@
 from datetime import datetime
+import json
 import pandas as pd
+
 from django.db import transaction
 from django.db.models import Q
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.shortcuts import render, redirect
 from django.contrib.auth import login
-from django.contrib.auth.decorators import user_passes_test
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.urls import reverse
+from django.http import JsonResponse
+from django.views.decorators.http import require_http_methods
 
 from .forms import ExcelUploadForm, RegistroForm
 from .models import Asignatura, Horario, HorarioGuardado
 
 
-# --------------------------------------------------
-# VISTA: Seleccionar Sede
-# --------------------------------------------------
+# ==================================================
+#                  CONFIGURACIÓN
+# ==================================================
+MAX_HORARIOS_GUARDADOS = 5
+
+
+# ==================================================
+#                 VISTA: Seleccionar Sede
+# ==================================================
 def seleccionar_sede(request):
     """
     Página de inicio donde el usuario selecciona su sede.
@@ -27,9 +37,9 @@ def seleccionar_sede(request):
     return render(request, 'seleccionar_sede.html', {'sedes': sedes})
 
 
-# --------------------------------------------------
-# VISTA: Cargar Excel (solo superusuario)
-# --------------------------------------------------
+# ==================================================
+#              VISTA: Cargar Excel (Admin)
+# ==================================================
 @transaction.atomic
 def cargar_excel(request):
     """
@@ -43,13 +53,14 @@ def cargar_excel(request):
 
     if request.method == 'POST':
         form = ExcelUploadForm(request.POST, request.FILES)
+
         if form.is_valid():
             excel_file = request.FILES['archivo_excel']
 
             try:
+                # --- Leer Excel ---
                 df = pd.read_excel(excel_file, sheet_name='Hoja1')
 
-                # 1. Validar existencia de columna Sede
                 if 'Sede' not in df.columns or df.empty:
                     raise ValueError('El archivo no tiene la columna "Sede" o está vacío.')
 
@@ -57,11 +68,11 @@ def cargar_excel(request):
                 if not sede_a_cargar or pd.isna(sede_a_cargar):
                     raise ValueError('No se pudo identificar la sede en la primera fila.')
 
-                # 2. Eliminar datos antiguos de esa sede
+                # --- Eliminar datos antiguos ---
                 print(f"Eliminando datos antiguos de la sede: {sede_a_cargar}")
                 Asignatura.objects.filter(sede=sede_a_cargar).delete()
 
-                # 3. Agrupar por sección
+                # --- Crear asignaturas ---
                 agrupadas = df.groupby('Sección')
                 asignaturas_bulk = []
                 asignatura_temp_info = []  # Guarda (objeto_asig, grupo_df)
@@ -83,10 +94,9 @@ def cargar_excel(request):
                     asignaturas_bulk.append(asignatura)
                     asignatura_temp_info.append((asignatura, grupo))
 
-                # 4. Insertar asignaturas
                 Asignatura.objects.bulk_create(asignaturas_bulk)
 
-                # 5. Obtener asignaturas reales con IDs
+                # --- Asociar horarios ---
                 asignaturas_creadas = Asignatura.objects.filter(
                     sede=sede_a_cargar,
                     sigla__in=[a.sigla for a in asignaturas_bulk],
@@ -94,7 +104,6 @@ def cargar_excel(request):
                 )
                 asignaturas_dict = {(a.sigla, a.seccion): a for a in asignaturas_creadas}
 
-                # 6. Procesar horarios
                 horarios_bulk = []
                 for asig_temp, grupo in asignatura_temp_info:
                     asignatura = asignaturas_dict.get((asig_temp.sigla, asig_temp.seccion))
@@ -121,10 +130,9 @@ def cargar_excel(request):
                         except Exception as e:
                             print(f"Error procesando horario '{fila_horario.get('Horario', '')}': {e}")
 
-                # 7. Insertar horarios
                 Horario.objects.bulk_create(horarios_bulk)
 
-                # 8. Redirigir a la lista filtrada por sede
+                # --- Redirigir a la lista filtrada por sede ---
                 return redirect(f"{reverse('lista_asignaturas')}?sede={sede_a_cargar}")
 
             except Exception as e:
@@ -138,9 +146,9 @@ def cargar_excel(request):
     return render(request, 'cargar_excel.html', {'form': form, 'mensaje_error': mensaje_error})
 
 
-# --------------------------------------------------
-# VISTA: Lista de Asignaturas
-# --------------------------------------------------
+# ==================================================
+#              VISTA: Lista de Asignaturas
+# ==================================================
 def lista_asignaturas(request):
     """
     Lista de asignaturas con filtros por sede, carrera, jornada, nivel y búsqueda.
@@ -148,18 +156,16 @@ def lista_asignaturas(request):
     """
     asignaturas_query = Asignatura.objects.all()
 
-    # 1. Filtro por sede
+    # --- Filtros ---
     sedes = Asignatura.objects.values_list('sede', flat=True).distinct().order_by('sede')
     sede = request.GET.get('sede')
-    if sede:
-        asignaturas_query = asignaturas_query.filter(sede=sede)
-
-    # 2. Filtros adicionales
     carrera = request.GET.get('carrera')
     jornada = request.GET.get('jornada')
     nivel = request.GET.get('nivel')
     busqueda = request.GET.get('busqueda')
 
+    if sede:
+        asignaturas_query = asignaturas_query.filter(sede=sede)
     if carrera:
         asignaturas_query = asignaturas_query.filter(carrera=carrera)
     if jornada:
@@ -171,7 +177,7 @@ def lista_asignaturas(request):
             Q(nombre__icontains=busqueda) | Q(sigla__icontains=busqueda)
         )
 
-    # 3. Quitar duplicados (sigla + sección)
+    # --- Eliminar duplicados (sigla + sección) ---
     asignaturas_query = asignaturas_query.order_by('sigla', 'seccion')
     vistos = set()
     asignaturas_list = []
@@ -181,7 +187,7 @@ def lista_asignaturas(request):
             vistos.add(key)
             asignaturas_list.append(a)
 
-    # 4. Paginación
+    # --- Paginación ---
     paginator = Paginator(asignaturas_list, 10)
     page = request.GET.get('page', 1)
     try:
@@ -189,11 +195,8 @@ def lista_asignaturas(request):
     except (PageNotAnInteger, EmptyPage):
         page_obj = paginator.page(1)
 
-    # 5. Filtros desplegables (dependen de sede)
-    query_filtros = Asignatura.objects.all()
-    if sede:
-        query_filtros = query_filtros.filter(sede=sede)
-
+    # --- Filtros dinámicos (dependen de sede) ---
+    query_filtros = Asignatura.objects.filter(sede=sede) if sede else Asignatura.objects.all()
     carreras = query_filtros.values_list('carrera', flat=True).distinct().order_by('carrera')
     jornadas = query_filtros.values_list('jornada', flat=True).distinct().order_by('jornada')
     niveles = query_filtros.values_list('nivel', flat=True).distinct().order_by('nivel')
@@ -208,23 +211,21 @@ def lista_asignaturas(request):
         asignaturas_filtro.values('nombre', 'sigla').distinct().order_by('nombre')
     )
 
-    return render(
-        request,
-        'lista_asignaturas.html',
-        {
-            'asignaturas': page_obj,
-            'sedes': sedes,
-            'carreras': carreras,
-            'jornadas': jornadas,
-            'niveles': niveles,
-            'asignaturas_unicas': asignaturas_unicas,
-        },
-    )
+    context = {
+        'asignaturas': page_obj,
+        'sedes': sedes,
+        'carreras': carreras,
+        'jornadas': jornadas,
+        'niveles': niveles,
+        'asignaturas_unicas': asignaturas_unicas,
+    }
+
+    return render(request, 'lista_asignaturas.html', context)
 
 
-# --------------------------------------------------
-# VISTA: Registro de Usuario
-# --------------------------------------------------
+# ==================================================
+#                VISTA: Registro Usuario
+# ==================================================
 def registro(request):
     """
     Registro de nuevos usuarios y login automático.
@@ -240,14 +241,10 @@ def registro(request):
 
     return render(request, 'registration/registro.html', {'form': form})
 
-from django.contrib.auth.decorators import login_required
-from django.http import JsonResponse
-from django.views.decorators.http import require_http_methods
-import json
 
-# --------------------------------------------------
-# API: Guardar Horario
-# --------------------------------------------------
+# ==================================================
+#               API: Guardar Horario
+# ==================================================
 @login_required
 @require_http_methods(["POST"])
 def guardar_horario(request):
@@ -262,18 +259,24 @@ def guardar_horario(request):
 
         if not nombre:
             return JsonResponse({'error': 'El nombre es requerido'}, status=400)
-
         if not asignaturas_ids:
             return JsonResponse({'error': 'Debes seleccionar al menos una asignatura'}, status=400)
 
-        # Crear o actualizar el horario
+        # --- Límite de horarios ---
+        horarios_count = HorarioGuardado.objects.filter(usuario=request.user).count()
+        existe = HorarioGuardado.objects.filter(usuario=request.user, nombre=nombre).exists()
+        if horarios_count >= MAX_HORARIOS_GUARDADOS and not existe:
+            return JsonResponse({
+                'error': f'Límite de {MAX_HORARIOS_GUARDADOS} horarios alcanzado. Elimina uno antiguo para guardar uno nuevo.'
+            }, status=400)
+
+        # --- Crear o actualizar horario ---
         horario, created = HorarioGuardado.objects.update_or_create(
             usuario=request.user,
             nombre=nombre,
             defaults={}
         )
 
-        # Limpiar y añadir asignaturas
         horario.asignaturas.clear()
         asignaturas = Asignatura.objects.filter(id__in=asignaturas_ids)
         horario.asignaturas.add(*asignaturas)
@@ -291,9 +294,9 @@ def guardar_horario(request):
         return JsonResponse({'error': str(e)}, status=500)
 
 
-# --------------------------------------------------
-# API: Listar Horarios Guardados
-# --------------------------------------------------
+# ==================================================
+#             API: Listar Horarios Guardados
+# ==================================================
 @login_required
 @require_http_methods(["GET"])
 def listar_horarios_guardados(request):
@@ -301,7 +304,7 @@ def listar_horarios_guardados(request):
     Devuelve todos los horarios guardados del usuario actual.
     """
     horarios = HorarioGuardado.objects.filter(usuario=request.user)
-    
+
     data = [{
         'id': h.id,
         'nombre': h.nombre,
@@ -323,9 +326,9 @@ def listar_horarios_guardados(request):
     return JsonResponse({'horarios': data})
 
 
-# --------------------------------------------------
-# API: Eliminar Horario Guardado
-# --------------------------------------------------
+# ==================================================
+#           API: Eliminar Horario Guardado
+# ==================================================
 @login_required
 @require_http_methods(["DELETE"])
 def eliminar_horario_guardado(request, horario_id):
