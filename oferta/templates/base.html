@@ -28,10 +28,6 @@
                         <a href="{% url 'inicio' %}" class="text-white hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium">
                             Cambiar Sede
                         </a>
-                        <a href="{% url 'lista_asignaturas' %}{% if request.GET.sede %}?sede={{ request.GET.sede }}{% endif %}" 
-                        class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
-                            Asignaturas
-                        </a>
                     </div>
                 </div>
 

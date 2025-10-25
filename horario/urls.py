@@ -26,4 +26,7 @@ urlpatterns = [
 
     # 3. Registro de Usuario
     path('registro/', views.registro, name='registro'),
+    path('api/horarios/guardar/', views.guardar_horario, name='guardar_horario'),
+    path('api/horarios/listar/', views.listar_horarios_guardados, name='listar_horarios'),
+    path('api/horarios/eliminar/<int:horario_id>/', views.eliminar_horario_guardado, name='eliminar_horario'),
 ]
