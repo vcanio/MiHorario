@@ -1,0 +1,192 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+
+<div id="generador-container" class="max-w-7xl mx-auto">
+    
+    <!-- Header -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-white mb-2">
+            🤖 Generador Automático de Horarios
+        </h1>
+        <p class="text-gray-400">
+            Selecciona tus asignaturas y deja que el sistema encuentre las mejores combinaciones sin conflictos de horario.
+            Sede: <span class="text-white font-medium">{{ sede }}</span>
+        </p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <!-- Panel Izquierdo: Filtros y Selección -->
+        <div class="lg:col-span-2 space-y-6">
+            
+            <!-- Filtros -->
+            <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+                <h2 class="text-xl font-semibold text-white mb-4">Filtros</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label for="generador-carrera" class="block text-sm font-medium text-gray-300 mb-2">Carrera</label>
+                        <select id="generador-carrera" class="w-full px-4 py-2 rounded-lg border border-gray-600 bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="">Todas</option>
+                            {% for carrera in carreras %}
+                                <option value="{{ carrera }}">{{ carrera }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <label for="generador-nivel" class="block text-sm font-medium text-gray-300 mb-2">Nivel</label>
+                        <select id="generador-nivel" class="w-full px-4 py-2 rounded-lg border border-gray-600 bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">Todos</option>
+                        {% for nivel in niveles %}
+                            {% if nivel %}
+                                <option value="{{ nivel }}">{{ nivel }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                    </div>
+                    <div>
+                        <label for="generador-jornada" class="block text-sm font-medium text-gray-300 mb-2">Jornada</label>
+                        <select id="generador-jornada" class="w-full px-4 py-2 rounded-lg border border-gray-600 bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            {% for jornada in jornadas %}
+                                {% if jornada %}
+                                    <option value="{{ jornada }}">{{ jornada }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Asignaturas Disponibles -->
+            <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-xl font-semibold text-white">Asignaturas Disponibles</h2>
+                    <button id="btn-limpiar-seleccion" class="text-sm text-red-400 hover:text-red-300 transition-colors">
+                        Limpiar selección
+                    </button>
+                </div>
+                <div id="asignaturas-disponibles" class="space-y-2 max-h-96 overflow-y-auto">
+                    <p class="text-gray-400 text-sm">Cargando asignaturas...</p>
+                </div>
+            </div>
+
+            <!-- Resultados -->
+            <div id="resultados-generador"></div>
+
+        </div>
+
+        <!-- Panel Derecho: Preferencias y Selección -->
+        <div class="space-y-6">
+            
+            <!-- Resumen de Selección -->
+            <div class="bg-gray-800 rounded-lg p-6 border border-gray-700 sticky top-4">
+                <h2 class="text-xl font-semibold text-white mb-4">
+                    Asignaturas Seleccionadas
+                </h2>
+                <div id="resumen-seleccion" class="mb-6 min-h-[100px]">
+                    <p class="text-gray-400 text-sm italic">No has seleccionado ninguna asignatura</p>
+                </div>
+
+                <!-- Preferencias -->
+                <div class="mb-6">
+                    <h3 class="text-lg font-semibold text-white mb-3">Preferencias</h3>
+                    <div class="space-y-3">
+                        
+                        <label class="flex items-center gap-3 cursor-pointer">
+                            <input type="checkbox" id="pref-minimizar-dias" checked class="w-4 h-4 rounded border-gray-600 bg-gray-700 text-blue-600 focus:ring-2 focus:ring-blue-500">
+                            <span class="text-sm text-gray-300">Minimizar días de asistencia</span>
+                        </label>
+
+                        <label class="flex items-center gap-3 cursor-pointer">
+                            <input type="checkbox" id="pref-minimizar-huecos" checked class="w-4 h-4 rounded border-gray-600 bg-gray-700 text-blue-600 focus:ring-2 focus:ring-blue-500">
+                            <span class="text-sm text-gray-300">Minimizar huecos entre clases</span>
+                        </label>
+
+                        <label class="flex items-center gap-3 cursor-pointer">
+                            <input type="checkbox" id="pref-compacto" checked class="w-4 h-4 rounded border-gray-600 bg-gray-700 text-blue-600 focus:ring-2 focus:ring-blue-500">
+                            <span class="text-sm text-gray-300">Preferir horarios compactos</span>
+                        </label>
+
+                        <div>
+                            <label for="pref-virtuales" class="block text-sm text-gray-300 mb-2">Clases virtuales</label>
+                            <select id="pref-virtuales" class="w-full px-3 py-2 rounded-lg border border-gray-600 bg-gray-700 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="neutro">Sin preferencia</option>
+                                <option value="si">Preferir virtuales</option>
+                                <option value="no">Preferir presenciales</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botón Generar -->
+                <button 
+                    id="btn-generar-horarios"
+                    class="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white px-6 py-3 rounded-lg font-medium transition-colors flex items-center justify-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                    Generar Horarios
+                </button>
+
+                <!-- Spinner de carga -->
+                <div id="generador-spinner" class="hidden mt-4 text-center">
+                    <svg class="animate-spin h-8 w-8 text-blue-500 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <p class="text-gray-400 text-sm mt-2">Generando combinaciones...</p>
+                </div>
+
+                <!-- Info -->
+                <div class="mt-4 p-3 bg-blue-900/20 border border-blue-700/50 rounded-lg">
+                    <p class="text-xs text-blue-300">
+                        💡 El generador encuentra automáticamente las mejores combinaciones sin conflictos de horario según tus preferencias.
+                    </p>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Cómo Funciona -->
+    <div class="mt-8 bg-gray-800 rounded-lg p-6 border border-gray-700">
+        <h3 class="text-xl font-semibold text-white mb-4">¿Cómo funciona el generador?</h3>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div class="text-center">
+                <div class="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <span class="text-white font-bold text-xl">1</span>
+                </div>
+                <h4 class="font-medium text-white mb-2">Selecciona</h4>
+                <p class="text-sm text-gray-400">Elige las asignaturas que necesitas cursar</p>
+            </div>
+            <div class="text-center">
+                <div class="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <span class="text-white font-bold text-xl">2</span>
+                </div>
+                <h4 class="font-medium text-white mb-2">Configura</h4>
+                <p class="text-sm text-gray-400">Define tus preferencias de horario</p>
+            </div>
+            <div class="text-center">
+                <div class="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <span class="text-white font-bold text-xl">3</span>
+                </div>
+                <h4 class="font-medium text-white mb-2">Genera</h4>
+                <p class="text-sm text-gray-400">El sistema busca las mejores combinaciones</p>
+            </div>
+            <div class="text-center">
+                <div class="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <span class="text-white font-bold text-xl">4</span>
+                </div>
+                <h4 class="font-medium text-white mb-2">Aplica</h4>
+                <p class="text-sm text-gray-400">Elige tu opción favorita y aplícala</p>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script type="module" src="{% static 'js/generador.js' %}"></script>
+{% endblock %}

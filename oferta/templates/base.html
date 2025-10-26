@@ -28,6 +28,19 @@
                         <a href="{% url 'inicio' %}" class="text-white hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium">
                             Inicio
                         </a>
+                        {% if request.GET.sede %}
+                            <a href="{% url 'lista_asignaturas' %}?sede={{ request.GET.sede }}" 
+                               class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
+                                Asignaturas
+                            </a>
+                            <a href="{% url 'generador_horarios' %}?sede={{ request.GET.sede }}" 
+                               class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium flex items-center gap-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                </svg>
+                                Generador
+                            </a>
+                        {% endif %}
                     </div>
                 </div>
 
@@ -75,13 +88,24 @@
         <!-- MENÚ MÓVIL -->
         <div class="sm:hidden hidden" id="mobile-menu">
             <div class="px-2 pt-2 pb-3 space-y-1">
+                {% if user.is_superuser %}
+                    <a href="{% url 'cargar_excel' %}" class="text-white block hover:bg-gray-700 px-3 py-2 rounded-md text-base font-medium">
+                        Carga Excel
+                    </a>
+                {% endif %}
                 <a href="{% url 'inicio' %}" class="text-white block hover:bg-gray-700 px-3 py-2 rounded-md text-base font-medium">
                     Cambiar Sede
                 </a>
-                <a href="{% url 'lista_asignaturas' %}{% if request.GET.sede %}?sede={{ request.GET.sede }}{% endif %}" 
-                class="text-gray-300 block hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-base font-medium">
-                    Asignaturas
-                </a>
+                {% if request.GET.sede %}
+                    <a href="{% url 'lista_asignaturas' %}?sede={{ request.GET.sede }}" 
+                       class="text-gray-300 block hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-base font-medium">
+                        Asignaturas
+                    </a>
+                    <a href="{% url 'generador_horarios' %}?sede={{ request.GET.sede }}" 
+                       class="text-gray-300 block hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-base font-medium">
+                        🤖 Generador Automático
+                    </a>
+                {% endif %}
 
                 <div class="border-t border-gray-700 my-2"></div>
 
