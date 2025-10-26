@@ -6,10 +6,9 @@
 
 <div id="generador-container" class="max-w-7xl mx-auto">
     
-    <!-- Header -->
     <div class="mb-8">
         <h1 class="text-3xl font-bold text-white mb-2">
-            🤖 Generador Automático de Horarios
+            Generador Automático de Horarios
         </h1>
         <p class="text-gray-400">
             Selecciona tus asignaturas y deja que el sistema encuentre las mejores combinaciones sin conflictos de horario.
@@ -19,10 +18,8 @@
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
-        <!-- Panel Izquierdo: Filtros y Selección -->
         <div class="lg:col-span-2 space-y-6">
             
-            <!-- Filtros -->
             <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
                 <h2 class="text-xl font-semibold text-white mb-4">Filtros</h2>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -59,7 +56,6 @@
                 </div>
             </div>
 
-            <!-- Asignaturas Disponibles -->
             <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
                 <div class="flex items-center justify-between mb-4">
                     <h2 class="text-xl font-semibold text-white">Asignaturas Disponibles</h2>
@@ -72,15 +68,12 @@
                 </div>
             </div>
 
-            <!-- Resultados -->
             <div id="resultados-generador"></div>
 
         </div>
 
-        <!-- Panel Derecho: Preferencias y Selección -->
         <div class="space-y-6">
             
-            <!-- Resumen de Selección -->
             <div class="bg-gray-800 rounded-lg p-6 border border-gray-700 sticky top-4">
                 <h2 class="text-xl font-semibold text-white mb-4">
                     Asignaturas Seleccionadas
@@ -89,24 +82,23 @@
                     <p class="text-gray-400 text-sm italic">No has seleccionado ninguna asignatura</p>
                 </div>
 
-                <!-- Preferencias -->
                 <div class="mb-6">
                     <h3 class="text-lg font-semibold text-white mb-3">Preferencias</h3>
-                    <div class="space-y-3">
+                    
+                    <div class="space-y-4">
                         
-                        <label class="flex items-center gap-3 cursor-pointer">
-                            <input type="checkbox" id="pref-minimizar-dias" checked class="w-4 h-4 rounded border-gray-600 bg-gray-700 text-blue-600 focus:ring-2 focus:ring-blue-500">
-                            <span class="text-sm text-gray-300">Minimizar días de asistencia</span>
-                        </label>
+                        <div>
+                            <label for="pref-horario" class="block text-sm text-gray-300 mb-2">Preferencia de Horario</label>
+                            <select id="pref-horario" class="w-full px-3 py-2 rounded-lg border border-gray-600 bg-gray-700 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="neutro">Sin preferencia</option>
+                                <option value="entrar_temprano">Entrar lo más temprano</option>
+                                <option value="salir_temprano">Salir lo más temprano</option>
+                            </select>
+                        </div>
 
                         <label class="flex items-center gap-3 cursor-pointer">
                             <input type="checkbox" id="pref-minimizar-huecos" checked class="w-4 h-4 rounded border-gray-600 bg-gray-700 text-blue-600 focus:ring-2 focus:ring-blue-500">
                             <span class="text-sm text-gray-300">Minimizar huecos entre clases</span>
-                        </label>
-
-                        <label class="flex items-center gap-3 cursor-pointer">
-                            <input type="checkbox" id="pref-compacto" checked class="w-4 h-4 rounded border-gray-600 bg-gray-700 text-blue-600 focus:ring-2 focus:ring-blue-500">
-                            <span class="text-sm text-gray-300">Preferir horarios compactos</span>
                         </label>
 
                         <div>
@@ -118,9 +110,8 @@
                             </select>
                         </div>
                     </div>
-                </div>
+                    </div>
 
-                <!-- Botón Generar -->
                 <button 
                     id="btn-generar-horarios"
                     class="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white px-6 py-3 rounded-lg font-medium transition-colors flex items-center justify-center gap-2">
@@ -130,7 +121,6 @@
                     Generar Horarios
                 </button>
 
-                <!-- Spinner de carga -->
                 <div id="generador-spinner" class="hidden mt-4 text-center">
                     <svg class="animate-spin h-8 w-8 text-blue-500 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -139,7 +129,6 @@
                     <p class="text-gray-400 text-sm mt-2">Generando combinaciones...</p>
                 </div>
 
-                <!-- Info -->
                 <div class="mt-4 p-3 bg-blue-900/20 border border-blue-700/50 rounded-lg">
                     <p class="text-xs text-blue-300">
                         💡 El generador encuentra automáticamente las mejores combinaciones sin conflictos de horario según tus preferencias.
@@ -151,7 +140,6 @@
 
     </div>
 
-    <!-- Cómo Funciona -->
     <div class="mt-8 bg-gray-800 rounded-lg p-6 border border-gray-700">
         <h3 class="text-xl font-semibold text-white mb-4">¿Cómo funciona el generador?</h3>
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6">

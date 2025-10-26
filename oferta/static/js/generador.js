@@ -1,7 +1,4 @@
-// oferta/static/js/generador.js
-// ============================================================
-// Generador Automático de Horarios - Lógica Frontend
-// ============================================================
+// vcanio/mihorario/MiHorario-feature-generador/oferta/static/js/generador.js
 
 import { diasLargos } from './constants.js';
 import { getCsrfToken, mostrarNotificacion } from './ui.js';
@@ -97,13 +94,10 @@ function renderizarListaAsignaturas() {
 // ==================================================
 window.toggleAsignatura = function(sigla) {
     if (asignaturasSeleccionadas.has(sigla)) {
-        // Si ya está, se borra
         asignaturasSeleccionadas.delete(sigla);
     } else {
-        // Si no está, busca el objeto en la lista visible (izquierda)
         const asig = asignaturasDisponibles.find(a => a.sigla === sigla);
         if (asig) {
-            // Y lo guarda en el Map
             asignaturasSeleccionadas.set(sigla, asig);
         }
     }
@@ -150,33 +144,31 @@ async function generarHorarios() {
         return;
     }
 
-    const preferencias = obtenerPreferencias();
+    // --- ▼▼▼ REWORK JORNADA ▼▼▼ ---
+    // Pasamos la jornada a obtenerPreferencias para que la incluya
+    const jornada = document.getElementById('generador-jornada')?.value;
+    const preferencias = obtenerPreferencias(jornada);
+    // --- ▲▲▲ FIN REWORK JORNADA ▲▲▲ ---
+
     const btnGenerar = document.getElementById('btn-generar-horarios');
     const spinner = document.getElementById('generador-spinner');
     const resultados = document.getElementById('resultados-generador');
 
-    // Mostrar estado de carga
     if (btnGenerar) btnGenerar.disabled = true;
     if (spinner) spinner.classList.remove('hidden');
     if (resultados) resultados.innerHTML = '';
 
     try {
         
-        // --- ▼▼▼ INICIO DE LA CORRECCIÓN ▼▼▼ ---
-        
-        // 1. Obtener la sede desde la URL
         const urlParams = new URLSearchParams(window.location.search);
         const sede = urlParams.get('sede');
 
         if (!sede) {
             mostrarNotificacion('Error: Sede no encontrada en la URL', 'error');
-            // Detener la carga
             if (btnGenerar) btnGenerar.disabled = false;
             if (spinner) spinner.classList.add('hidden');
             return;
         }
-        
-        // --- ▲▲▲ FIN DE LA CORRECCIÓN ▲▲▲ ---
 
         const response = await fetch('/api/generador/generar/', {
             method: 'POST',
@@ -185,10 +177,10 @@ async function generarHorarios() {
                 'X-CSRFToken': getCsrfToken()
             },
             body: JSON.stringify({
-                // 2. Añadir la sede al JSON que se envía
                 sede: sede,
+                jornada: jornada, // Se sigue enviando aquí para el filtro de la BBDD
                 siglas: Array.from(asignaturasSeleccionadas.keys()),
-                preferencias
+                preferencias: preferencias // Y se envía aquí para la puntuación
             })
         });
 
@@ -213,14 +205,18 @@ async function generarHorarios() {
 // ==================================================
 //        Obtener Preferencias del Usuario
 // ==================================================
-function obtenerPreferencias() {
+// --- ▼▼▼ REWORK JORNADA ▼▼▼ ---
+// Ahora acepta la jornada como argumento
+function obtenerPreferencias(jornada) {
+    // Lee las preferencias del HTML (que ya están actualizadas)
     return {
-        minimizar_dias: document.getElementById('pref-minimizar-dias')?.checked ?? true,
+        jornada: jornada, // Añadimos la jornada para que la puntuación se adapte
+        preferencia_horario: document.getElementById('pref-horario')?.value ?? 'neutro',
         minimizar_huecos: document.getElementById('pref-minimizar-huecos')?.checked ?? true,
-        preferir_compacto: document.getElementById('pref-compacto')?.checked ?? true,
         preferir_virtuales: document.getElementById('pref-virtuales')?.value ?? 'neutro'
     };
 }
+// --- ▲▲▲ FIN REWORK JORNADA ▲▲▲ ---
 
 // ==================================================
 //          Mostrar Resultados
@@ -261,7 +257,6 @@ function mostrarResultados() {
             </div>
 
             ${renderMetricas(horario.metricas)}
-
             <div class="mb-6">
                 <h4 class="text-lg font-semibold text-white mb-3">Asignaturas</h4>
                 <div class="space-y-2">
@@ -273,7 +268,7 @@ function mostrarResultados() {
                                 <span class="text-gray-400 text-sm ml-2">(Sección ${a.seccion})</span>
                             </div>
                             ${a.virtual ? '<span class="text-green-400 text-sm">Virtual</span>' : ''}
-                        </div>
+                            </div>
                     `).join('')}
                 </div>
             </div>
@@ -301,16 +296,11 @@ function mostrarResultados() {
 // ==================================================
 //           Renderizar Métricas
 // ==================================================
+// --- ▼▼▼ REWORK MÉTRICAS ▼▼▼ ---
+// Actualizado para mostrar hora de inicio y fin
 function renderMetricas(metricas) {
-    // --- INICIO CORRECCIÓN ---
-    // Eliminada la métrica de 'jornada' que no existía.
-    // Cambiado 'md:grid-cols-5' a 'md:grid-cols-4' para ajustar la grilla.
     return `
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-            <div class="bg-gray-700 p-4 rounded-lg text-center">
-                <div class="text-2xl font-bold text-blue-400">${metricas.dias_usados}</div>
-                <div class="text-sm text-gray-300">Días de asistencia</div>
-            </div>
             <div class="bg-gray-700 p-4 rounded-lg text-center">
                 <div class="text-2xl font-bold text-green-400">${Math.round(metricas.total_huecos_minutos)}</div>
                 <div class="text-sm text-gray-300">Minutos libres</div>
@@ -323,22 +313,23 @@ function renderMetricas(metricas) {
                 <div class="text-2xl font-bold text-orange-400">${metricas.hora_inicio_promedio.toFixed(1)}h</div>
                 <div class="text-sm text-gray-300">Hora inicio prom.</div>
             </div>
+            <div class="bg-gray-700 p-4 rounded-lg text-center">
+                <div class="text-2xl font-bold text-blue-400">${metricas.hora_fin_promedio.toFixed(1)}h</div>
+                <div class="text-sm text-gray-300">Hora fin prom.</div>
+            </div>
         </div>
     `;
-    // --- FIN CORRECCIÓN ---
 }
+// --- ▲▲▲ FIN REWORK MÉTRICAS ▲▲▲ ---
 
 // ==================================================
 //       Renderizar Preview del Horario
 // ==================================================
 function renderizarHorarioPreview(horario, containerId) {
-    // Implementación similar a actualizarHorario() pero más compacta
-    // Aquí reutilizarías la lógica de ui.js
     const container = document.getElementById(containerId);
     if (!container) return;
-
-    container.innerHTML = '<p class="text-gray-400 text-sm italic text-center py-4">Vista previa del horario generado</p>';
     // TODO: Integrar con el sistema de visualización existente
+    container.innerHTML = '<p class="text-gray-400 text-sm italic text-center py-4">Vista previa del horario generado (placeholder)</p>';
 }
 
 // ==================================================
@@ -357,8 +348,8 @@ window.navegarHorario = function(direccion) {
 // ==================================================
 window.aplicarHorarioGenerado = function() {
     const horario = horariosGenerados[horarioActualVista];
-    
-    // Convertir a formato compatible con el sistema actual
+    if (!horario) return;
+
     const seleccionadas = {};
     
     horario.asignaturas.forEach(asig => {
@@ -366,7 +357,7 @@ window.aplicarHorarioGenerado = function() {
             id: asig.id,
             nombre: asig.nombre,
             seccion: asig.seccion,
-            virtual: asig.virtual,
+            virtual: asig.virtual, // 'virtual' ya es un booleano
             horarios: asig.horarios.map(h => ({
                 dia: diasLargos[h.dia] || h.dia,
                 inicio: h.inicio,
@@ -375,12 +366,9 @@ window.aplicarHorarioGenerado = function() {
         };
     });
 
-    // Guardar en localStorage
     localStorage.setItem('seleccionadas', JSON.stringify(seleccionadas));
-    
     mostrarNotificacion('Horario aplicado correctamente. Redirigiendo...', 'success');
     
-    // Redirigir a la vista de asignaturas
     setTimeout(() => {
         const urlParams = new URLSearchParams(window.location.search);
         const sede = urlParams.get('sede');
@@ -395,7 +383,6 @@ window.compararHorarios = function() {
     const modal = document.getElementById('modal-comparacion');
     if (!modal) {
         crearModalComparacion();
-        return;
     }
     
     const container = document.getElementById('comparacion-container');
@@ -412,16 +399,20 @@ window.compararHorarios = function() {
             
             <div class="space-y-2 text-sm">
                 <div class="flex justify-between text-gray-300">
-                    <span>Días:</span>
-                    <span class="font-medium text-white">${horario.metricas.dias_usados}</span>
-                </div>
-                <div class="flex justify-between text-gray-300">
                     <span>Huecos:</span>
                     <span class="font-medium text-white">${Math.round(horario.metricas.total_huecos_minutos)} min</span>
                 </div>
                 <div class="flex justify-between text-gray-300">
                     <span>Virtuales:</span>
                     <span class="font-medium text-white">${horario.metricas.clases_virtuales}</span>
+                </div>
+                <div class="flex justify-between text-gray-300">
+                    <span>Inicio Prom:</span>
+                    <span class="font-medium text-white">${horario.metricas.hora_inicio_promedio.toFixed(1)}h</span>
+                </div>
+                <div class="flex justify-between text-gray-300">
+                    <span>Fin Prom:</span>
+                    <span class="font-medium text-white">${horario.metricas.hora_fin_promedio.toFixed(1)}h</span>
                 </div>
             </div>
 
@@ -433,7 +424,7 @@ window.compararHorarios = function() {
         </div>
     `).join('');
 
-    modal.classList.remove('hidden');
+    if (modal) modal.classList.remove('hidden');
 };
 
 window.seleccionarHorarioComparacion = function(indice) {
@@ -447,9 +438,9 @@ function crearModalComparacion() {
     modal.id = 'modal-comparacion';
     modal.className = 'fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75 hidden';
     modal.innerHTML = `
-        <div class="relative w-full max-w-6xl p-6 bg-gray-800 rounded-lg shadow-xl border border-gray-700 max-h-[90vh] overflow-y-auto">
+        <div class="relative w-full max-w-4xl p-6 bg-gray-800 rounded-lg shadow-xl border border-gray-700 max-h-[90vh] overflow-y-auto">
             <div class="flex items-center justify-between mb-6">
-                <h3 class="text-2xl font-semibold text-white">Comparar Horarios</h3>
+                <h3 class="text-2xl font-semibold text-white">Comparar 3 Mejores Opciones</h3>
                 <button onclick="window.cerrarModalComparacion()" class="text-gray-400 hover:text-white">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -465,7 +456,7 @@ function crearModalComparacion() {
         if (e.target === modal) cerrarModalComparacion();
     });
     
-    window.compararHorarios();
+    window.compararHorarios(); // Llama de nuevo para poblar el modal recién creado
 }
 
 window.cerrarModalComparacion = function() {
@@ -477,29 +468,21 @@ window.cerrarModalComparacion = function() {
 //         Setup Event Listeners
 // ==================================================
 function setupEventListeners() {
-    // Botón generar
     const btnGenerar = document.getElementById('btn-generar-horarios');
     if (btnGenerar) {
         btnGenerar.addEventListener('click', generarHorarios);
     }
 
-    // Filtros
     ['generador-carrera', 'generador-nivel', 'generador-jornada'].forEach(id => {
         const element = document.getElementById(id);
         if (element) {
-            
-            // --- INICIO CORRECCIÓN ---
-            // Eliminada la línea 'asignaturasSeleccionadas.clear();'
-            // para evitar que se borre la selección al cambiar de filtro.
             element.addEventListener('change', () => {
+                // Al cambiar filtros, recargamos las asignaturas disponibles
                 cargarAsignaturasDisponibles();
             });
-            // --- FIN CORRECCIÓN ---
-            
         }
     });
 
-    // Limpiar selección
     const btnLimpiar = document.getElementById('btn-limpiar-seleccion');
     if (btnLimpiar) {
         btnLimpiar.addEventListener('click', () => {
