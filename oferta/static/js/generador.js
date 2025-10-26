@@ -1,4 +1,4 @@
-// vcanio/mihorario/MiHorario-feature-generador/oferta/static/js/generador.js
+// oferta/static/js/generador.js - VERSIÓN OPTIMIZADA
 
 import { diasLargos } from './constants.js';
 import { getCsrfToken, mostrarNotificacion } from './ui.js';
@@ -136,7 +136,7 @@ function actualizarResumenSeleccion() {
 }
 
 // ==================================================
-//           Generar Horarios
+//           Generar Horarios (OPTIMIZADO)
 // ==================================================
 async function generarHorarios() {
     if (asignaturasSeleccionadas.size === 0) {
@@ -144,11 +144,14 @@ async function generarHorarios() {
         return;
     }
 
-    // --- ▼▼▼ REWORK JORNADA ▼▼▼ ---
-    // Pasamos la jornada a obtenerPreferencias para que la incluya
+    // Validación: Máximo 8 asignaturas para evitar explosión combinatoria
+    if (asignaturasSeleccionadas.size > 8) {
+        mostrarNotificacion('Por favor, selecciona máximo 8 asignaturas para un mejor rendimiento', 'error');
+        return;
+    }
+
     const jornada = document.getElementById('generador-jornada')?.value;
     const preferencias = obtenerPreferencias(jornada);
-    // --- ▲▲▲ FIN REWORK JORNADA ▲▲▲ ---
 
     const btnGenerar = document.getElementById('btn-generar-horarios');
     const spinner = document.getElementById('generador-spinner');
@@ -159,7 +162,6 @@ async function generarHorarios() {
     if (resultados) resultados.innerHTML = '';
 
     try {
-        
         const urlParams = new URLSearchParams(window.location.search);
         const sede = urlParams.get('sede');
 
@@ -178,9 +180,9 @@ async function generarHorarios() {
             },
             body: JSON.stringify({
                 sede: sede,
-                jornada: jornada, // Se sigue enviando aquí para el filtro de la BBDD
+                jornada: jornada,
                 siglas: Array.from(asignaturasSeleccionadas.keys()),
-                preferencias: preferencias // Y se envía aquí para la puntuación
+                preferencias: preferencias
             })
         });
 
@@ -190,11 +192,17 @@ async function generarHorarios() {
             horariosGenerados = data.horarios;
             horarioActualVista = 0;
             mostrarResultados();
-            mostrarNotificacion(`Se generaron ${horariosGenerados.length} horario(s) óptimo(s)`, 'success');
+            
+            const mensaje = horariosGenerados.length === 10 
+                ? `Se generaron ${horariosGenerados.length} horarios óptimos (mostrando los mejores)`
+                : `Se generaron ${horariosGenerados.length} horario(s) óptimo(s)`;
+            
+            mostrarNotificacion(mensaje, 'success');
         } else {
             mostrarNotificacion(data.error || 'Error al generar horarios', 'error');
         }
     } catch (error) {
+        console.error('Error:', error);
         mostrarNotificacion('Error de conexión', 'error');
     } finally {
         if (btnGenerar) btnGenerar.disabled = false;
@@ -205,18 +213,14 @@ async function generarHorarios() {
 // ==================================================
 //        Obtener Preferencias del Usuario
 // ==================================================
-// --- ▼▼▼ REWORK JORNADA ▼▼▼ ---
-// Ahora acepta la jornada como argumento
 function obtenerPreferencias(jornada) {
-    // Lee las preferencias del HTML (que ya están actualizadas)
     return {
-        jornada: jornada, // Añadimos la jornada para que la puntuación se adapte
+        jornada: jornada,
         preferencia_horario: document.getElementById('pref-horario')?.value ?? 'neutro',
         minimizar_huecos: document.getElementById('pref-minimizar-huecos')?.checked ?? true,
         preferir_virtuales: document.getElementById('pref-virtuales')?.value ?? 'neutro'
     };
 }
-// --- ▲▲▲ FIN REWORK JORNADA ▲▲▲ ---
 
 // ==================================================
 //          Mostrar Resultados
@@ -227,6 +231,11 @@ function mostrarResultados() {
 
     const horario = horariosGenerados[horarioActualVista];
 
+    // Determinar color de badge según puntuación
+    let badgeColor = 'bg-green-600';
+    if (horario.puntuacion < 60) badgeColor = 'bg-red-600';
+    else if (horario.puntuacion < 80) badgeColor = 'bg-yellow-600';
+
     container.innerHTML = `
         <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
             <div class="flex items-center justify-between mb-6">
@@ -235,9 +244,10 @@ function mostrarResultados() {
                         Opción ${horarioActualVista + 1} de ${horariosGenerados.length}
                     </h3>
                     <div class="flex items-center gap-2 mt-2">
-                        <span class="px-3 py-1 bg-blue-600 text-white rounded-full text-sm font-medium">
-                            Puntuación: ${horario.puntuacion.toFixed(1)}/100
+                        <span class="px-3 py-1 ${badgeColor} text-white rounded-full text-sm font-medium">
+                            Puntuación: ${horario.puntuacion}/100
                         </span>
+                        ${horario.puntuacion >= 80 ? '<span class="text-green-400 text-sm">⭐ Excelente</span>' : ''}
                     </div>
                 </div>
                 <div class="flex gap-2">
@@ -257,6 +267,7 @@ function mostrarResultados() {
             </div>
 
             ${renderMetricas(horario.metricas)}
+            
             <div class="mb-6">
                 <h4 class="text-lg font-semibold text-white mb-3">Asignaturas</h4>
                 <div class="space-y-2">
@@ -267,8 +278,8 @@ function mostrarResultados() {
                                 <span class="text-gray-300">- ${a.nombre}</span>
                                 <span class="text-gray-400 text-sm ml-2">(Sección ${a.seccion})</span>
                             </div>
-                            ${a.virtual ? '<span class="text-green-400 text-sm">Virtual</span>' : ''}
-                            </div>
+                            ${a.virtual ? '<span class="text-green-400 text-sm">🌐 Virtual</span>' : '<span class="text-blue-400 text-sm">🏫 Presencial</span>'}
+                        </div>
                     `).join('')}
                 </div>
             </div>
@@ -281,11 +292,13 @@ function mostrarResultados() {
                     class="flex-1 bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition-colors">
                     ✓ Aplicar este horario
                 </button>
-                <button 
-                    onclick="window.compararHorarios()"
-                    class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors">
-                    Comparar opciones
-                </button>
+                ${horariosGenerados.length > 1 ? `
+                    <button 
+                        onclick="window.compararHorarios()"
+                        class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors">
+                        🔄 Comparar opciones
+                    </button>
+                ` : ''}
             </div>
         </div>
     `;
@@ -294,33 +307,44 @@ function mostrarResultados() {
 }
 
 // ==================================================
-//           Renderizar Métricas
+//           Renderizar Métricas (MEJORADO)
 // ==================================================
-// --- ▼▼▼ REWORK MÉTRICAS ▼▼▼ ---
-// Actualizado para mostrar hora de inicio y fin
 function renderMetricas(metricas) {
+    const horasHuecos = Math.floor(metricas.total_huecos_minutos / 60);
+    const minutosHuecos = Math.round(metricas.total_huecos_minutos % 60);
+    
     return `
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
             <div class="bg-gray-700 p-4 rounded-lg text-center">
-                <div class="text-2xl font-bold text-green-400">${Math.round(metricas.total_huecos_minutos)}</div>
-                <div class="text-sm text-gray-300">Minutos libres</div>
+                <div class="text-2xl font-bold text-green-400">
+                    ${horasHuecos}h ${minutosHuecos}m
+                </div>
+                <div class="text-sm text-gray-300">Tiempo libre</div>
             </div>
             <div class="bg-gray-700 p-4 rounded-lg text-center">
                 <div class="text-2xl font-bold text-purple-400">${metricas.clases_virtuales}</div>
                 <div class="text-sm text-gray-300">Clases virtuales</div>
             </div>
             <div class="bg-gray-700 p-4 rounded-lg text-center">
-                <div class="text-2xl font-bold text-orange-400">${metricas.hora_inicio_promedio.toFixed(1)}h</div>
+                <div class="text-2xl font-bold text-orange-400">${formatearHora(metricas.hora_inicio_promedio)}</div>
                 <div class="text-sm text-gray-300">Hora inicio prom.</div>
             </div>
             <div class="bg-gray-700 p-4 rounded-lg text-center">
-                <div class="text-2xl font-bold text-blue-400">${metricas.hora_fin_promedio.toFixed(1)}h</div>
+                <div class="text-2xl font-bold text-blue-400">${formatearHora(metricas.hora_fin_promedio)}</div>
                 <div class="text-sm text-gray-300">Hora fin prom.</div>
             </div>
         </div>
     `;
 }
-// --- ▲▲▲ FIN REWORK MÉTRICAS ▲▲▲ ---
+
+// ==================================================
+//         Función Helper: Formatear Hora
+// ==================================================
+function formatearHora(horaDecimal) {
+    const horas = Math.floor(horaDecimal);
+    const minutos = Math.round((horaDecimal - horas) * 60);
+    return `${horas.toString().padStart(2, '0')}:${minutos.toString().padStart(2, '0')}`;
+}
 
 // ==================================================
 //       Renderizar Preview del Horario
@@ -328,8 +352,16 @@ function renderMetricas(metricas) {
 function renderizarHorarioPreview(horario, containerId) {
     const container = document.getElementById(containerId);
     if (!container) return;
-    // TODO: Integrar con el sistema de visualización existente
-    container.innerHTML = '<p class="text-gray-400 text-sm italic text-center py-4">Vista previa del horario generado (placeholder)</p>';
+    
+    // Por ahora placeholder, luego integrar con sistema visual
+    container.innerHTML = `
+        <div class="bg-gray-900 rounded-lg p-4 border border-gray-700">
+            <h5 class="text-sm font-semibold text-gray-400 mb-3">Vista Previa del Horario</h5>
+            <div class="text-gray-500 text-xs text-center py-4">
+                💡 Vista detallada disponible después de aplicar
+            </div>
+        </div>
+    `;
 }
 
 // ==================================================
@@ -357,7 +389,7 @@ window.aplicarHorarioGenerado = function() {
             id: asig.id,
             nombre: asig.nombre,
             seccion: asig.seccion,
-            virtual: asig.virtual, // 'virtual' ya es un booleano
+            virtual: asig.virtual,
             horarios: asig.horarios.map(h => ({
                 dia: diasLargos[h.dia] || h.dia,
                 inicio: h.inicio,
@@ -383,48 +415,55 @@ window.compararHorarios = function() {
     const modal = document.getElementById('modal-comparacion');
     if (!modal) {
         crearModalComparacion();
+        return;
     }
     
     const container = document.getElementById('comparacion-container');
     if (!container) return;
 
-    container.innerHTML = horariosGenerados.slice(0, 3).map((horario, idx) => `
-        <div class="bg-gray-700 rounded-lg p-4 ${idx === horarioActualVista ? 'ring-2 ring-blue-500' : ''}">
-            <div class="flex items-center justify-between mb-3">
-                <h4 class="font-semibold text-white">Opción ${idx + 1}</h4>
-                <span class="px-2 py-1 bg-blue-600 text-white rounded text-xs">
-                    ${horario.puntuacion.toFixed(0)} pts
-                </span>
-            </div>
-            
-            <div class="space-y-2 text-sm">
-                <div class="flex justify-between text-gray-300">
-                    <span>Huecos:</span>
-                    <span class="font-medium text-white">${Math.round(horario.metricas.total_huecos_minutos)} min</span>
-                </div>
-                <div class="flex justify-between text-gray-300">
-                    <span>Virtuales:</span>
-                    <span class="font-medium text-white">${horario.metricas.clases_virtuales}</span>
-                </div>
-                <div class="flex justify-between text-gray-300">
-                    <span>Inicio Prom:</span>
-                    <span class="font-medium text-white">${horario.metricas.hora_inicio_promedio.toFixed(1)}h</span>
-                </div>
-                <div class="flex justify-between text-gray-300">
-                    <span>Fin Prom:</span>
-                    <span class="font-medium text-white">${horario.metricas.hora_fin_promedio.toFixed(1)}h</span>
-                </div>
-            </div>
+    container.innerHTML = horariosGenerados.slice(0, 3).map((horario, idx) => {
+        let badgeColor = 'bg-green-600';
+        if (horario.puntuacion < 60) badgeColor = 'bg-red-600';
+        else if (horario.puntuacion < 80) badgeColor = 'bg-yellow-600';
 
-            <button 
-                onclick="window.seleccionarHorarioComparacion(${idx})"
-                class="w-full mt-4 px-4 py-2 ${idx === horarioActualVista ? 'bg-blue-600' : 'bg-gray-600'} hover:bg-blue-700 text-white rounded-lg text-sm transition-colors">
-                ${idx === horarioActualVista ? 'Seleccionado' : 'Seleccionar'}
-            </button>
-        </div>
-    `).join('');
+        return `
+            <div class="bg-gray-700 rounded-lg p-4 ${idx === horarioActualVista ? 'ring-2 ring-blue-500' : ''}">
+                <div class="flex items-center justify-between mb-3">
+                    <h4 class="font-semibold text-white">Opción ${idx + 1}</h4>
+                    <span class="px-2 py-1 ${badgeColor} text-white rounded text-xs">
+                        ${horario.puntuacion.toFixed(0)} pts
+                    </span>
+                </div>
+                
+                <div class="space-y-2 text-sm">
+                    <div class="flex justify-between text-gray-300">
+                        <span>Huecos:</span>
+                        <span class="font-medium text-white">${Math.round(horario.metricas.total_huecos_minutos)} min</span>
+                    </div>
+                    <div class="flex justify-between text-gray-300">
+                        <span>Virtuales:</span>
+                        <span class="font-medium text-white">${horario.metricas.clases_virtuales}</span>
+                    </div>
+                    <div class="flex justify-between text-gray-300">
+                        <span>Inicio:</span>
+                        <span class="font-medium text-white">${formatearHora(horario.metricas.hora_inicio_promedio)}</span>
+                    </div>
+                    <div class="flex justify-between text-gray-300">
+                        <span>Fin:</span>
+                        <span class="font-medium text-white">${formatearHora(horario.metricas.hora_fin_promedio)}</span>
+                    </div>
+                </div>
 
-    if (modal) modal.classList.remove('hidden');
+                <button 
+                    onclick="window.seleccionarHorarioComparacion(${idx})"
+                    class="w-full mt-4 px-4 py-2 ${idx === horarioActualVista ? 'bg-blue-600' : 'bg-gray-600'} hover:bg-blue-700 text-white rounded-lg text-sm transition-colors">
+                    ${idx === horarioActualVista ? '✓ Seleccionado' : 'Seleccionar'}
+                </button>
+            </div>
+        `;
+    }).join('');
+
+    modal.classList.remove('hidden');
 };
 
 window.seleccionarHorarioComparacion = function(indice) {
@@ -456,7 +495,7 @@ function crearModalComparacion() {
         if (e.target === modal) cerrarModalComparacion();
     });
     
-    window.compararHorarios(); // Llama de nuevo para poblar el modal recién creado
+    window.compararHorarios();
 }
 
 window.cerrarModalComparacion = function() {
@@ -477,7 +516,6 @@ function setupEventListeners() {
         const element = document.getElementById(id);
         if (element) {
             element.addEventListener('change', () => {
-                // Al cambiar filtros, recargamos las asignaturas disponibles
                 cargarAsignaturasDisponibles();
             });
         }
@@ -489,6 +527,7 @@ function setupEventListeners() {
             asignaturasSeleccionadas.clear();
             renderizarListaAsignaturas();
             actualizarResumenSeleccion();
+            mostrarNotificacion('Selección limpiada', 'info');
         });
     }
 }

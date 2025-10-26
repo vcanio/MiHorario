@@ -24,6 +24,8 @@ from django.db.models import Count, Q
 #                  CONFIGURACIÓN
 # ==================================================
 MAX_HORARIOS_GUARDADOS = 5
+MAX_TIEMPO_GENERACION = 15  # segundos
+MAX_COMBINACIONES_EVALUAR = 10000
 
 
 # ==================================================
@@ -79,7 +81,7 @@ def cargar_excel(request):
                 # --- Crear asignaturas ---
                 agrupadas = df.groupby('Sección')
                 asignaturas_bulk = []
-                asignatura_temp_info = []  # Guarda (objeto_asig, grupo_df)
+                asignatura_temp_info = []
 
                 for seccion, grupo in agrupadas:
                     fila = grupo.iloc[0]
@@ -136,7 +138,6 @@ def cargar_excel(request):
 
                 Horario.objects.bulk_create(horarios_bulk)
 
-                # --- Redirigir a la lista filtrada por sede ---
                 return redirect(f"{reverse('lista_asignaturas')}?sede={sede_a_cargar}")
 
             except Exception as e:
@@ -156,7 +157,6 @@ def cargar_excel(request):
 def lista_asignaturas(request):
     """
     Lista de asignaturas con filtros por sede, carrera, jornada, nivel y búsqueda.
-    Incluye paginación y desplegables dependientes.
     """
     asignaturas_query = Asignatura.objects.all()
 
@@ -181,7 +181,7 @@ def lista_asignaturas(request):
             Q(nombre__icontains=busqueda) | Q(sigla__icontains=busqueda)
         )
 
-    # --- Eliminar duplicados (sigla + sección) ---
+    # --- Eliminar duplicados ---
     asignaturas_query = asignaturas_query.order_by('sigla', 'seccion')
     vistos = set()
     asignaturas_list = []
@@ -199,7 +199,7 @@ def lista_asignaturas(request):
     except (PageNotAnInteger, EmptyPage):
         page_obj = paginator.page(1)
 
-    # --- Filtros dinámicos (dependen de sede) ---
+    # --- Filtros dinámicos ---
     query_filtros = Asignatura.objects.filter(sede=sede) if sede else Asignatura.objects.all()
     carreras = query_filtros.values_list('carrera', flat=True).distinct().order_by('carrera')
     jornadas = query_filtros.values_list('jornada', flat=True).distinct().order_by('jornada')
@@ -254,7 +254,6 @@ def registro(request):
 def guardar_horario(request):
     """
     Guarda un horario con las asignaturas seleccionadas.
-    Espera: { nombre: "Mi Horario", asignaturas_ids: [1, 2, 3] }
     """
     try:
         data = json.loads(request.body)
@@ -264,11 +263,11 @@ def guardar_horario(request):
         if not nombre:
             return JsonResponse({'error': 'El nombre es requerido'}, status=400)
         
-        MAX_NOMBRE_LENGTH = 30 # Define el límite que quieras
+        MAX_NOMBRE_LENGTH = 30
         if len(nombre) > MAX_NOMBRE_LENGTH:
-                    return JsonResponse({
-                        'error': f'El nombre no puede tener más de {MAX_NOMBRE_LENGTH} caracteres'
-                    }, status=400)
+            return JsonResponse({
+                'error': f'El nombre no puede tener más de {MAX_NOMBRE_LENGTH} caracteres'
+            }, status=400)
 
         if not asignaturas_ids:
             return JsonResponse({'error': 'Debes seleccionar al menos una asignatura'}, status=400)
@@ -281,7 +280,7 @@ def guardar_horario(request):
                 'error': f'Límite de {MAX_HORARIOS_GUARDADOS} horarios alcanzado. Elimina uno antiguo para guardar uno nuevo.'
             }, status=400)
 
-        # --- Crear o actualizar horario ---
+        # --- Crear o actualizar ---
         horario, created = HorarioGuardado.objects.update_or_create(
             usuario=request.user,
             nombre=nombre,
@@ -373,26 +372,18 @@ def generador_horarios(request):
     if not sede:
         return redirect('inicio')
     
-    # --- INICIO DE LA MODIFICACIÓN ---
-    
-    # Query base para los filtros de esta sede
     query_filtros = Asignatura.objects.filter(sede=sede)
     
-    # Obtener filtros disponibles
     carreras = query_filtros.values_list('carrera', flat=True).distinct().order_by('carrera')
-    
-    # ¡AÑADE ESTAS LÍNEAS!
     niveles = query_filtros.values_list('nivel', flat=True).distinct().order_by('nivel')
     jornadas = query_filtros.values_list('jornada', flat=True).distinct().order_by('jornada')
 
     context = {
         'sede': sede,
         'carreras': carreras,
-        'niveles': niveles,   # ¡AÑADE ESTO!
-        'jornadas': jornadas, # ¡AÑADE ESTO!
+        'niveles': niveles,
+        'jornadas': jornadas,
     }
-    
-    # --- FIN DE LA MODIFICACIÓN ---
     
     return render(request, 'generador_horarios.html', context)
 
@@ -441,7 +432,6 @@ def api_asignaturas_generador(request):
             } for h in asig.horarios.all()]
         })
     
-    # Convertir a lista
     result = [
         {
             'sigla': sigla,
@@ -456,67 +446,53 @@ def api_asignaturas_generador(request):
 
 
 # ==================================================
-#          API: Generar Horarios
+#          API: Generar Horarios (OPTIMIZADO)
 # ==================================================
 @login_required
 @require_http_methods(["POST"])
 def api_generar_horarios(request):
     """
-    Genera combinaciones de horarios óptimas según preferencias
+    Genera combinaciones de horarios óptimas usando backtracking
     """
     try:
         data = json.loads(request.body)
         siglas_seleccionadas = data.get('siglas', [])
         preferencias = data.get('preferencias', {})
-        
-        # --- ▼▼▼ CORRECCIÓN JORNADA ▼▼▼ ---
-        
-        # 1. Recibir la sede desde el JSON
         sede = data.get('sede')
-        if not sede:
-            return JsonResponse({'error': 'La sede es requerida en la solicitud'}, status=400)
-            
-        # 2. Recibir la jornada desde el JSON
-        jornada = data.get('jornada') # Puede ser "" (Todas), "Diurno", "Vespertino"
-            
-        # --- ▲▲▲ FIN CORRECCIÓN JORNADA ▲▲▲ ---
+        jornada = data.get('jornada')
 
+        if not sede:
+            return JsonResponse({'error': 'La sede es requerida'}, status=400)
+            
         if not siglas_seleccionadas:
             return JsonResponse({'error': 'Debes seleccionar al menos una asignatura'}, status=400)
         
-        # --- ▼▼▼ CORRECCIÓN JORNADA ▼▼▼ ---
-        
-        # 3. Construir la consulta base
+        # Consulta base
         asignaturas_query = Asignatura.objects.filter(
             sigla__in=siglas_seleccionadas,
             sede=sede
         )
 
-        # 4. Añadir el filtro de jornada SOLO SI se especificó una
         if jornada:
             asignaturas_query = asignaturas_query.filter(jornada=jornada)
 
-        # 5. Ejecutar la consulta final
         asignaturas = asignaturas_query.prefetch_related('horarios')
-        
-        # --- ▲▲▲ FIN CORRECCIÓN JORNADA ▲▲▲ ---
         
         # Agrupar por sigla
         por_sigla = defaultdict(list)
         for asig in asignaturas:
             por_sigla[asig.sigla].append(asig)
         
-        # Verificar que todas las siglas tengan secciones (en esta sede y jornada)
+        # Verificar que existan secciones
         for sigla in siglas_seleccionadas:
             if sigla not in por_sigla:
                 error_msg = f'No se encontraron secciones para {sigla} en la sede seleccionada'
                 if jornada:
                     error_msg += f' y jornada {jornada}'
-                
                 return JsonResponse({'error': error_msg}, status=400)
         
-        # Generar combinaciones
-        horarios_generados = generar_combinaciones_horarios(
+        # Generar combinaciones (OPTIMIZADO)
+        horarios_generados = generar_combinaciones_optimizado(
             por_sigla, 
             preferencias,
             max_resultados=10
@@ -538,11 +514,7 @@ def api_generar_horarios(request):
                     'nombre': asig.nombre,
                     'seccion': asig.seccion,
                     'docente': asig.docente,
-                    
-                    # --- ▼▼▼ CORRECCIÓN BUG VIRTUAL ▼▼▼ ---
-                    'virtual': asig.virtual_sincronica == 'True', 
-                    # --- ▲▲▲ FIN CORRECCIÓN BUG VIRTUAL ▲▲▲ ---
-                    
+                    'virtual': asig.virtual_sincronica == 'True',
                     'horarios': [{
                         'dia': h.dia,
                         'inicio': h.hora_inicio.strftime('%H:%M'),
@@ -568,112 +540,138 @@ def api_generar_horarios(request):
 
 
 # ==================================================
-#     FUNCIÓN: Generar Combinaciones de Horarios
+#  FUNCIÓN: Generar Combinaciones (BACKTRACKING)
 # ==================================================
-def generar_combinaciones_horarios(por_sigla, preferencias, max_resultados=10):
+def generar_combinaciones_optimizado(por_sigla, preferencias, max_resultados=10):
     """
-    Genera todas las combinaciones posibles sin solapamientos
-    y las ordena según preferencias
+    Genera combinaciones usando backtracking con poda temprana
+    MUCHO más eficiente que itertools.product
     """
-    from itertools import product
-    from datetime import datetime, time
+    import time
     
-    # Obtener todas las secciones de cada sigla
-    secciones_por_sigla = [por_sigla[sigla] for sigla in sorted(por_sigla.keys())]
-    
-    # Generar todas las combinaciones posibles
-    combinaciones_posibles = product(*secciones_por_sigla)
+    siglas_ordenadas = sorted(por_sigla.keys())
+    secciones_por_sigla = [por_sigla[sigla] for sigla in siglas_ordenadas]
     
     horarios_validos = []
+    combinaciones_evaluadas = 0
+    tiempo_inicio = time.time()
     
-    for combinacion in combinaciones_posibles:
+    def backtrack(indice, combinacion_actual, horarios_ocupados):
+        nonlocal combinaciones_evaluadas
         
-        # --- ▼▼▼ INICIO DE LA CORRECCIÓN ▼▼▼ ---
-        # NUEVA VALIDACIÓN: Asegurar que todas las asignaturas
-        # de la combinación tengan la misma jornada.
+        # Timeout de seguridad
+        if time.time() - tiempo_inicio > MAX_TIEMPO_GENERACION:
+            return True
         
-        if not combinacion: # Omitir si la combinación está vacía
-            continue
+        # Límite de combinaciones
+        if combinaciones_evaluadas >= MAX_COMBINACIONES_EVALUAR:
+            return True
+        
+        # Caso base: combinación completa
+        if indice == len(secciones_por_sigla):
+            combinaciones_evaluadas += 1
             
-        # Obtenemos todas las jornadas de la combinación
-        jornadas_en_combinacion = set(asig.jornada for asig in combinacion)
+            # Calcular métricas y puntuación
+            metricas = calcular_metricas_horario(combinacion_actual)
+            puntuacion = calcular_puntuacion_normalizada(metricas, preferencias)
+            
+            horarios_validos.append({
+                'asignaturas': list(combinacion_actual),
+                'puntuacion': puntuacion,
+                'metricas': metricas
+            })
+            
+            # Poda: si tenemos suficientes buenos resultados
+            if len(horarios_validos) >= max_resultados * 5:
+                return True
+            
+            return False
         
-        # Si hay más de una jornada distinta, es una mezcla inválida
-        if len(jornadas_en_combinacion) > 1:
-            continue # Descartar esta combinación y pasar a la siguiente
+        # Probar cada sección de la asignatura actual
+        for seccion in secciones_por_sigla[indice]:
+            # PODA 1: Verificar jornada
+            if combinacion_actual:
+                jornada_actual = combinacion_actual[0].jornada
+                if seccion.jornada != jornada_actual:
+                    continue
+            
+            # PODA 2: Verificar solapamientos (optimizado)
+            if tiene_solapamiento_rapido(seccion, horarios_ocupados):
+                continue
+            
+            # Añadir sección
+            nuevos_horarios = actualizar_horarios_ocupados(horarios_ocupados, seccion)
+            combinacion_actual.append(seccion)
+            
+            # Recursión
+            if backtrack(indice + 1, combinacion_actual, nuevos_horarios):
+                combinacion_actual.pop()
+                return True
+            
+            # Backtrack
+            combinacion_actual.pop()
         
-        # --- ▲▲▲ FIN DE LA CORRECCIÓN ▲▲▲ ---
-
-        # Verificar que no haya solapamientos de TIEMPO
-        if tiene_solapamiento_combinacion(combinacion):
-            continue
-        
-        # Calcular métricas y puntuación
-        metricas = calcular_metricas_horario(combinacion)
-        puntuacion = calcular_puntuacion(metricas, preferencias)
-        
-        horarios_validos.append({
-            'asignaturas': list(combinacion),
-            'puntuacion': puntuacion,
-            'metricas': metricas
-        })
-        
-        # Limitar resultados para evitar sobrecarga
-        if len(horarios_validos) >= max_resultados * 10:
-            break
+        return False
     
-    # Ordenar por puntuación y retornar los mejores
+    # Iniciar backtracking
+    backtrack(0, [], defaultdict(list))
+    
+    # Ordenar por puntuación y retornar mejores
     horarios_validos.sort(key=lambda x: x['puntuacion'], reverse=True)
     return horarios_validos[:max_resultados]
 
 
 # ==================================================
-#   FUNCIÓN: Verificar Solapamiento en Combinación
+#   FUNCIONES AUXILIARES OPTIMIZADAS
 # ==================================================
-def tiene_solapamiento_combinacion(asignaturas):
+def tiene_solapamiento_rapido(asignatura, horarios_ocupados):
     """
-    Verifica si hay solapamientos en una combinación de asignaturas
+    Verificación rápida de solapamientos
     """
-    from datetime import datetime
-    
-    horarios_ocupados = defaultdict(list)  # {dia: [(inicio, fin, sigla)]}
-    
-    for asig in asignaturas:
-        for horario in asig.horarios.all():
-            inicio = datetime.combine(datetime.today(), horario.hora_inicio)
-            fin = datetime.combine(datetime.today(), horario.hora_fin)
-            
-            # Verificar solapamiento con horarios existentes en ese día
-            for h_inicio, h_fin, sigla in horarios_ocupados[horario.dia]:
-                if inicio < h_fin and fin > h_inicio:
-                    return True
-            
-            horarios_ocupados[horario.dia].append((inicio, fin, asig.sigla))
+    for horario in asignatura.horarios.all():
+        dia = horario.dia
+        inicio = datetime.combine(datetime.today(), horario.hora_inicio)
+        fin = datetime.combine(datetime.today(), horario.hora_fin)
+        
+        for h_inicio, h_fin in horarios_ocupados[dia]:
+            if inicio < h_fin and fin > h_inicio:
+                return True
     
     return False
 
 
+def actualizar_horarios_ocupados(horarios_ocupados, asignatura):
+    """
+    Copia actualizada de horarios (inmutable para backtracking)
+    """
+    nuevos = defaultdict(list)
+    
+    for dia, horarios in horarios_ocupados.items():
+        nuevos[dia] = horarios.copy()
+    
+    for horario in asignatura.horarios.all():
+        inicio = datetime.combine(datetime.today(), horario.hora_inicio)
+        fin = datetime.combine(datetime.today(), horario.hora_fin)
+        nuevos[horario.dia].append((inicio, fin))
+    
+    return nuevos
+
+
 # ==================================================
-#       FUNCIÓN: Calcular Métricas de Horario
+#       FUNCIÓN: Calcular Métricas (MEJORADO)
 # ==================================================
 def calcular_metricas_horario(asignaturas):
     """
-    Calcula métricas para evaluar la calidad de un horario
+    Calcula métricas completas del horario
     """
-    from datetime import datetime, timedelta
-    
     dias_usados = set()
     total_huecos = 0
     bloques_por_dia = defaultdict(list)
     clases_virtuales = 0
     
-    # Organizar horarios por día
     for asig in asignaturas:
-        # --- ▼▼▼ CORRECCIÓN DE BUG VIRTUAL EN MÉTRICAS ▼▼▼ ---
-        # Aseguramos que la comprobación sea contra el string 'True'
         if asig.virtual_sincronica == 'True':
             clases_virtuales += 1
-        # --- ▲▲▲ FIN DE LA CORRECCIÓN ▲▲▲ ---
             
         for horario in asig.horarios.all():
             dias_usados.add(horario.dia)
@@ -681,7 +679,7 @@ def calcular_metricas_horario(asignaturas):
             fin = datetime.combine(datetime.today(), horario.hora_fin)
             bloques_por_dia[horario.dia].append((inicio, fin))
     
-    # Calcular huecos (tiempo libre entre clases)
+    # Calcular huecos
     for dia, bloques in bloques_por_dia.items():
         bloques.sort()
         for i in range(len(bloques) - 1):
@@ -689,89 +687,100 @@ def calcular_metricas_horario(asignaturas):
             if hueco > 0:
                 total_huecos += hueco
     
-    # --- ▼▼▼ REWORK DE MÉTRICAS (INICIO/FIN) ▼▼▼ ---
+    # Horas de inicio y fin
     horas_inicio = []
-    horas_fin = [] # Nueva métrica
+    horas_fin = []
     
     for bloques in bloques_por_dia.values():
         if bloques:
-            # Hora de inicio de ese día (en decimal, ej: 8.5 = 8:30)
-            bloque_mas_temprano = min(bloques)
-            horas_inicio.append(bloque_mas_temprano[0].hour + bloque_mas_temprano[0].minute/60)
+            mas_temprano = min(bloques, key=lambda x: x[0])
+            mas_tarde = max(bloques, key=lambda x: x[1])
             
-            # Hora de fin de ese día (en decimal)
-            bloque_mas_tarde = max(bloques)
-            horas_fin.append(bloque_mas_tarde[1].hour + bloque_mas_tarde[1].minute/60)
+            horas_inicio.append(mas_temprano[0].hour + mas_temprano[0].minute/60)
+            horas_fin.append(mas_tarde[1].hour + mas_tarde[1].minute/60)
     
-    hora_inicio_promedio = sum(horas_inicio) / len(horas_inicio) if horas_inicio else 0
-    hora_fin_promedio = sum(horas_fin) / len(horas_fin) if horas_fin else 0
-    # --- ▲▲▲ FIN REWORK DE MÉTRICAS ▲▲▲ ---
+    # Balance de carga
+    clases_por_dia = [len(bloques) for bloques in bloques_por_dia.values()]
+    if clases_por_dia:
+        promedio_clases = sum(clases_por_dia) / len(clases_por_dia)
+        varianza = sum((x - promedio_clases) ** 2 for x in clases_por_dia) / len(clases_por_dia)
+        balance = max(0, 1 - (varianza / 16))
+    else:
+        balance = 1.0
     
     return {
         'dias_usados': len(dias_usados),
         'total_huecos_minutos': total_huecos,
         'clases_virtuales': clases_virtuales,
-        'hora_inicio_promedio': hora_inicio_promedio,
-        'hora_fin_promedio': hora_fin_promedio, # Nueva métrica
-        'bloques_por_dia': {dia: len(bloques) for dia, bloques in bloques_por_dia.items()}
+        'hora_inicio_promedio': sum(horas_inicio) / len(horas_inicio) if horas_inicio else 0,
+        'hora_fin_promedio': sum(horas_fin) / len(horas_fin) if horas_fin else 0,
+        'bloques_por_dia': {dia: len(bloques) for dia, bloques in bloques_por_dia.items()},
+        'balance_carga': balance
     }
 
 
 # ==================================================
-#      FUNCIÓN: Calcular Puntuación de Horario
+#   FUNCIÓN: Puntuación Normalizada (0-100)
 # ==================================================
-def calcular_puntuacion(metricas, preferencias):
+def calcular_puntuacion_normalizada(metricas, preferencias):
     """
-    Calcula una puntuación basada en métricas y preferencias del usuario
+    Sistema de puntuación normalizado en escala 0-100
     """
-    puntuacion = 100.0
+    puntuacion = 0.0
     
-    # --- ▼▼▼ REWORK PUNTUACIÓN (PREFERENCIAS ADAPTABLES) ▼▼▼ ---
-
-    # Preferencia: Menos huecos (Peso: 40 puntos)
+    # --- COMPONENTE 1: Huecos (40%) ---
+    # 0 huecos = 40 pts, 180+ min = 0 pts
+    huecos_pts = max(0, 40 - (metricas['total_huecos_minutos'] / 180) * 40)
+    
     if preferencias.get('minimizar_huecos', True):
-        puntuacion -= (metricas['total_huecos_minutos'] / 60) * 10
+        puntuacion += huecos_pts
+    else:
+        puntuacion += 20  # Neutro
     
-    # Preferencia: Clases virtuales (Peso: 10 puntos)
-    preferencia_virtual = preferencias.get('preferir_virtuales', 'neutro')
-    if preferencia_virtual == 'si':
-        puntuacion += metricas['clases_virtuales'] * 5
-    elif preferencia_virtual == 'no':
-        puntuacion -= metricas['clases_virtuales'] * 3
+    # --- COMPONENTE 2: Clases Virtuales (20%) ---
+    total_asignaturas = max(1, len(metricas.get('bloques_por_dia', {})))
+    ratio_virtual = metricas['clases_virtuales'] / total_asignaturas
     
+    pref_virtual = preferencias.get('preferir_virtuales', 'neutro')
     
-    # Preferencia de Horario (Peso: 50 puntos)
-    preferencia_horario = preferencias.get('preferencia_horario', 'neutro')
+    if pref_virtual == 'si':
+        puntuacion += ratio_virtual * 20
+    elif pref_virtual == 'no':
+        puntuacion += (1 - ratio_virtual) * 20
+    else:
+        puntuacion += 10
     
-    # --- LÓGICA DE JORNADA ADAPTABLE ---
-    # Leemos la jornada que envió el JS
-    jornada_seleccionada = preferencias.get('jornada')
+    # --- COMPONENTE 3: Horario (40%) ---
+    jornada = preferencias.get('jornada', '')
     
-    # Definimos horas "ideales" dinámicamente
-    hora_ideal_inicio = 12.0 # Neutral (mediodía)
-    hora_ideal_fin = 16.0    # Neutral
+    # Definir rangos ideales según jornada
+    if jornada == 'Diurno':
+        inicio_ideal, fin_ideal = 8.0, 14.0
+    elif jornada == 'Vespertino':
+        inicio_ideal, fin_ideal = 18.0, 22.0
+    else:
+        inicio_ideal, fin_ideal = 12.0, 18.0
     
-    if jornada_seleccionada == 'Diurno':
-        hora_ideal_inicio = 8.0  # 8 AM
-        hora_ideal_fin = 14.0    # 2 PM
-    elif jornada_seleccionada == 'Vespertino':
-        hora_ideal_inicio = 18.0 # 6 PM
-        hora_ideal_fin = 22.0    # 10 PM
+    inicio_real = metricas['hora_inicio_promedio']
+    fin_real = metricas['hora_fin_promedio']
+    
+    pref_horario = preferencias.get('preferencia_horario', 'neutro')
+    
+    if pref_horario == 'entrar_temprano':
+        desviacion = abs(inicio_real - inicio_ideal)
+        puntuacion += max(0, 40 - (desviacion / 4) * 40)
         
-    # --- FIN LÓGICA JORNADA ---
-
-    if preferencia_horario == 'entrar_temprano':
-        # Penaliza basado en la hora ideal de *inicio* de esa jornada
-        # Ej: Si es vespertino, penaliza (19.0 - 18.0) * 8
-        # Ej: Si es diurno, penaliza (9.0 - 8.0) * 8
-        puntuacion -= (metricas['hora_inicio_promedio'] - hora_ideal_inicio) * 8
+    elif pref_horario == 'salir_temprano':
+        desviacion = abs(fin_real - fin_ideal)
+        puntuacion += max(0, 40 - (desviacion / 4) * 40)
         
-    elif preferencia_horario == 'salir_temprano':
-        # Penaliza basado en la hora ideal de *fin* de esa jornada
-        # Ej: Si es vespertino, penaliza (23.0 - 22.0) * 8
-        # Ej: Si es diurno, penaliza (15.0 - 14.0) * 8
-        puntuacion -= (metricas['hora_fin_promedio'] - hora_ideal_fin) * 8
-
-    # --- ▲▲▲ FIN REWORK PUNTUACIÓN ▲▲▲ ---
+    else:  # neutro
+        desviacion_inicio = abs(inicio_real - inicio_ideal)
+        desviacion_fin = abs(fin_real - fin_ideal)
+        desviacion_promedio = (desviacion_inicio + desviacion_fin) / 2
+        puntuacion += max(0, 40 - (desviacion_promedio / 4) * 40)
     
-    return max(0, puntuacion)
+    # Bonus por balance de carga (hasta 5 pts extra)
+    puntuacion += metricas.get('balance_carga', 0) * 5
+    
+    return round(min(100, puntuacion), 2)

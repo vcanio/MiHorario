@@ -7,19 +7,24 @@
 <div id="generador-container" class="max-w-7xl mx-auto">
     
     <div class="mb-8">
-        <h1 class="text-3xl font-bold text-white mb-2">
+        <h1 class="text-3xl font-bold text-white mb-2 flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
             Generador Automático de Horarios
         </h1>
         <p class="text-gray-400">
-            Selecciona tus asignaturas y deja que el sistema encuentre las mejores combinaciones sin conflictos de horario.
-            Sede: <span class="text-white font-medium">{{ sede }}</span>
+            Selecciona tus asignaturas y el sistema encontrará las mejores combinaciones sin conflictos.
+            <span class="text-white font-medium">Sede: {{ sede }}</span>
         </p>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
+        <!-- COLUMNA IZQUIERDA: Filtros y Resultados -->
         <div class="lg:col-span-2 space-y-6">
             
+            <!-- Filtros -->
             <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
                 <h2 class="text-xl font-semibold text-white mb-4">Filtros</h2>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -35,13 +40,13 @@
                     <div>
                         <label for="generador-nivel" class="block text-sm font-medium text-gray-300 mb-2">Nivel</label>
                         <select id="generador-nivel" class="w-full px-4 py-2 rounded-lg border border-gray-600 bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <option value="">Todos</option>
-                        {% for nivel in niveles %}
-                            {% if nivel %}
-                                <option value="{{ nivel }}">{{ nivel }}</option>
-                            {% endif %}
-                        {% endfor %}
-                    </select>
+                            <option value="">Todos</option>
+                            {% for nivel in niveles %}
+                                {% if nivel %}
+                                    <option value="{{ nivel }}">{{ nivel }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
                     </div>
                     <div>
                         <label for="generador-jornada" class="block text-sm font-medium text-gray-300 mb-2">Jornada</label>
@@ -56,6 +61,7 @@
                 </div>
             </div>
 
+            <!-- Asignaturas Disponibles -->
             <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
                 <div class="flex items-center justify-between mb-4">
                     <h2 class="text-xl font-semibold text-white">Asignaturas Disponibles</h2>
@@ -68,10 +74,12 @@
                 </div>
             </div>
 
+            <!-- Resultados -->
             <div id="resultados-generador"></div>
 
         </div>
 
+        <!-- COLUMNA DERECHA: Panel de Control -->
         <div class="space-y-6">
             
             <div class="bg-gray-800 rounded-lg p-6 border border-gray-700 sticky top-4">
@@ -82,56 +90,82 @@
                     <p class="text-gray-400 text-sm italic">No has seleccionado ninguna asignatura</p>
                 </div>
 
+                <!-- Preferencias -->
                 <div class="mb-6">
-                    <h3 class="text-lg font-semibold text-white mb-3">Preferencias</h3>
+                    <h3 class="text-lg font-semibold text-white mb-3 flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                        </svg>
+                        Preferencias
+                    </h3>
                     
                     <div class="space-y-4">
                         
+                        <!-- Preferencia de Horario -->
                         <div>
-                            <label for="pref-horario" class="block text-sm text-gray-300 mb-2">Preferencia de Horario</label>
+                            <label for="pref-horario" class="block text-sm text-gray-300 mb-2">
+                                ⏰ Preferencia de Horario
+                            </label>
                             <select id="pref-horario" class="w-full px-3 py-2 rounded-lg border border-gray-600 bg-gray-700 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                                 <option value="neutro">Sin preferencia</option>
-                                <option value="entrar_temprano">Entrar lo más temprano</option>
-                                <option value="salir_temprano">Salir lo más temprano</option>
+                                <option value="entrar_temprano">🌅 Entrar lo más temprano</option>
+                                <option value="salir_temprano">🌆 Salir lo más temprano</option>
                             </select>
+                            <p class="text-xs text-gray-400 mt-1">Optimiza según tu hora preferida</p>
                         </div>
 
-                        <label class="flex items-center gap-3 cursor-pointer">
-                            <input type="checkbox" id="pref-minimizar-huecos" checked class="w-4 h-4 rounded border-gray-600 bg-gray-700 text-blue-600 focus:ring-2 focus:ring-blue-500">
-                            <span class="text-sm text-gray-300">Minimizar huecos entre clases</span>
+                        <!-- Minimizar Huecos -->
+                        <label class="flex items-center gap-3 cursor-pointer group">
+                            <input type="checkbox" id="pref-minimizar-huecos" checked 
+                                class="w-4 h-4 rounded border-gray-600 bg-gray-700 text-blue-600 focus:ring-2 focus:ring-blue-500">
+                            <div class="flex-1">
+                                <span class="text-sm text-gray-300 group-hover:text-white transition-colors">
+                                    ⚡ Minimizar huecos entre clases
+                                </span>
+                                <p class="text-xs text-gray-400">Reduce tiempo libre innecesario</p>
+                            </div>
                         </label>
 
+                        <!-- Clases Virtuales -->
                         <div>
-                            <label for="pref-virtuales" class="block text-sm text-gray-300 mb-2">Clases virtuales</label>
+                            <label for="pref-virtuales" class="block text-sm text-gray-300 mb-2">
+                                🌐 Clases virtuales
+                            </label>
                             <select id="pref-virtuales" class="w-full px-3 py-2 rounded-lg border border-gray-600 bg-gray-700 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                                 <option value="neutro">Sin preferencia</option>
                                 <option value="si">Preferir virtuales</option>
                                 <option value="no">Preferir presenciales</option>
                             </select>
+                            <p class="text-xs text-gray-400 mt-1">Modalidad de clases preferida</p>
                         </div>
                     </div>
-                    </div>
+                </div>
 
+                <!-- Botón Generar -->
                 <button 
                     id="btn-generar-horarios"
-                    class="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white px-6 py-3 rounded-lg font-medium transition-colors flex items-center justify-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    class="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white px-6 py-3 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 group">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
                     </svg>
                     Generar Horarios
                 </button>
 
+                <!-- Spinner de Carga -->
                 <div id="generador-spinner" class="hidden mt-4 text-center">
                     <svg class="animate-spin h-8 w-8 text-blue-500 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
                     <p class="text-gray-400 text-sm mt-2">Generando combinaciones...</p>
+                    <p class="text-gray-500 text-xs mt-1">Esto puede tomar unos segundos</p>
                 </div>
 
+                <!-- Información -->
                 <div class="mt-4 p-3 bg-blue-900/20 border border-blue-700/50 rounded-lg">
                     <p class="text-xs text-blue-300">
-                        💡 El generador encuentra automáticamente las mejores combinaciones sin conflictos de horario según tus preferencias.
+                        💡 <strong>Tip:</strong> Cuantas menos asignaturas selecciones, más rápido será el proceso. 
+                        Máximo recomendado: 8 asignaturas.
                     </p>
                 </div>
             </div>
@@ -140,6 +174,7 @@
 
     </div>
 
+    <!-- Sección Informativa -->
     <div class="mt-8 bg-gray-800 rounded-lg p-6 border border-gray-700">
         <h3 class="text-xl font-semibold text-white mb-4">¿Cómo funciona el generador?</h3>
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -162,15 +197,59 @@
                     <span class="text-white font-bold text-xl">3</span>
                 </div>
                 <h4 class="font-medium text-white mb-2">Genera</h4>
-                <p class="text-sm text-gray-400">El sistema busca las mejores combinaciones</p>
+                <p class="text-sm text-gray-400">El sistema busca las mejores combinaciones automáticamente</p>
             </div>
             <div class="text-center">
                 <div class="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-3">
                     <span class="text-white font-bold text-xl">4</span>
                 </div>
                 <h4 class="font-medium text-white mb-2">Aplica</h4>
-                <p class="text-sm text-gray-400">Elige tu opción favorita y aplícala</p>
+                <p class="text-sm text-gray-400">Elige tu opción favorita y aplícala a tu horario</p>
             </div>
+        </div>
+    </div>
+
+    <!-- FAQ -->
+    <div class="mt-6 bg-gray-800 rounded-lg p-6 border border-gray-700">
+        <h3 class="text-lg font-semibold text-white mb-4">Preguntas Frecuentes</h3>
+        <div class="space-y-3 text-sm">
+            <details class="group">
+                <summary class="cursor-pointer text-gray-300 hover:text-white font-medium list-none flex items-center justify-between">
+                    ¿Cuántas asignaturas puedo seleccionar?
+                    <svg class="w-5 h-5 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </summary>
+                <p class="mt-2 text-gray-400 pl-4">
+                    Recomendamos entre 4-6 asignaturas para un semestre típico. El límite técnico es 8 asignaturas para mantener un tiempo de respuesta óptimo.
+                </p>
+            </details>
+            
+            <details class="group">
+                <summary class="cursor-pointer text-gray-300 hover:text-white font-medium list-none flex items-center justify-between">
+                    ¿Qué significa la puntuación?
+                    <svg class="w-5 h-5 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </summary>
+                <p class="mt-2 text-gray-400 pl-4">
+                    La puntuación (0-100) indica qué tan bien se ajusta el horario a tus preferencias. 
+                    80+ es excelente, 60-80 es bueno, y menos de 60 indica que hay mejores opciones.
+                </p>
+            </details>
+            
+            <details class="group">
+                <summary class="cursor-pointer text-gray-300 hover:text-white font-medium list-none flex items-center justify-between">
+                    ¿Por qué no encuentra combinaciones?
+                    <svg class="w-5 h-5 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </summary>
+                <p class="mt-2 text-gray-400 pl-4">
+                    Puede ocurrir si todas las secciones disponibles tienen conflictos de horario entre sí, 
+                    o si no hay suficientes secciones en la jornada seleccionada. Intenta ajustar los filtros.
+                </p>
+            </details>
         </div>
     </div>
 
