@@ -34,7 +34,6 @@ export function guardarHorarioActual() {
         errorEl.classList.add('hidden');
     }
     
-    // La lógica de 'fetch' para guardar se maneja en main.js
 }
 
 // ============================================================
@@ -186,5 +185,3 @@ function actualizarBotonesSeleccionados() {
         }
     });
 }
-
-console.log('savedSchedules.js cargado correctamente');

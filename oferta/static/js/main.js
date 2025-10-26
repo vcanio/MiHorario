@@ -35,8 +35,6 @@ import { guardarHorarioActual, cargarListaHorariosGuardados } from './savedSched
 window.exportarComoICS = exportarComoICS;
 window.exportarComoPDF = exportarComoPDF;
 
-console.log('main.js cargado correctamente');
-
 // ... (Las funciones quitarAsignatura, seleccionarAsignatura, actualizarBotones no cambian) ...
 
 function quitarAsignatura(sigla) {
