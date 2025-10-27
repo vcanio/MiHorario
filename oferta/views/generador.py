@@ -142,16 +142,16 @@ def api_generar_horarios(request):
                     error_msg += f' y jornada {jornada}'
                 return JsonResponse({'error': error_msg}, status=400)
         
-        # Generar combinaciones (OPTIMIZADO)
+        # Generar combinaciones (OPTIMIZADO - Explora todas las opciones)
         horarios_generados = generar_combinaciones_optimizado(
             por_sigla, 
             preferencias,
-            max_resultados=10
+            max_resultados=10  # Mostramos las 10 mejores
         )
         
         if not horarios_generados:
             return JsonResponse({
-                'error': 'No se encontraron combinaciones válidas sin solapamientos'
+                'error': 'No se encontraron combinaciones válidas sin solapamientos. Intenta con otra jornada o menos asignaturas.'
             }, status=404)
         
         # Serializar resultados
