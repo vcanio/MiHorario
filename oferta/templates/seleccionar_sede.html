@@ -1,120 +1,301 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8" />
-    <title>Inicio | MiHorario </title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MiHorario - Crea tu horario sin conflictos</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta
-        name="description"
-        content="Arma tu horario de manera visual e interactiva, sin topes ni complicaciones."
-    />
-    <link rel="icon" href="/static/favicon.ico" type="image/x-icon" />
-    <style>
-        @media (min-height: 800px) {
-            body {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            }
-        }
-    </style>
 </head>
-<body class="bg-gray-950 text-gray-100 min-h-screen px-4 py-12 sm:py-16">
-    <div class="w-full max-w-2xl mx-auto">
-        
-        <header class="text-center mb-10">
-            <h1 class="text-5xl font-extrabold text-white mb-4">
-                Mi<span class="text-blue-500">Horario</span>
-            </h1>
-            <p class="text-gray-400 text-lg max-w-lg mx-auto">
-                Revisa la oferta académica y arma tu horario de manera visual e interactiva, sin topes ni
-                complicaciones.
-            </p>
-        </header>
+<body class="bg-gray-950 text-gray-100">
 
-        <section class="bg-gray-800 p-8 rounded-2xl shadow-2xl border border-gray-700 mb-12">
-            <h2 class="text-2xl font-semibold text-center mb-6">
-                Selecciona tu Sede
-            </h2>
+    <!-- HERO SECTION -->
+    <section class="min-h-screen flex items-center justify-center px-4 py-12 relative overflow-hidden">
+        <!-- Background gradients -->
+        <div class="absolute inset-0 bg-gradient-to-br from-blue-900/20 via-gray-950 to-purple-900/20"></div>
+        <div class="absolute top-20 left-10 w-72 h-72 bg-blue-500/10 rounded-full blur-3xl"></div>
+        <div class="absolute bottom-20 right-10 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl"></div>
 
-            <form
-                method="GET"
-                action="{% url 'lista_asignaturas' %}"
-                class="flex flex-col gap-6"
-            >
-                <div>
-                    <label for="sede-select" class="block text-sm font-medium text-gray-300 mb-2">Sede</label>
-                    <select id="sede-select" name="sede" 
-                            required
-                            class="w-full px-4 py-3 rounded-lg border border-gray-600 bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <option value="" disabled selected>-- Elige una sede --</option>
-                        {% for sede in sedes %}
-                            <option value="{{ sede }}">{{ sede }}</option>
-                        {% endfor %}
-                    </select>
+        <div class="relative z-10 w-full max-w-6xl">
+            <div class="text-center mb-12">
+                <!-- Tagline -->
+                <div class="inline-block mb-4 px-4 py-2 bg-blue-500/10 border border-blue-500/30 rounded-full">
+                    <span class="text-blue-400 text-sm font-medium">Para estudiantes Duoc UC</span>
                 </div>
 
-                <button
-                    type="submit"
-                    class="bg-blue-600 hover:bg-blue-700 transition-colors duration-300 py-3 rounded-md font-medium text-white text-lg"
-                >
-                    Iniciar
-                </button>
-            </form>
-        </section>
+                <!-- Main Heading -->
+                <h1 class="text-5xl md:text-7xl font-extrabold mb-6 bg-gradient-to-r from-white via-blue-100 to-purple-200 bg-clip-text text-transparent">
+                    Crea tu horario perfecto
+                    <br>
+                    <span class="text-blue-500">en segundos</span>
+                </h1>
 
-        <section>
-            <h3 class="text-2xl font-semibold text-center text-white mb-8">
-                Tu horario en 3 simples pasos
-            </h3>
-            
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
-                
-                <div class="bg-gray-800 p-6 rounded-lg border border-gray-700">
-                    <svg class="w-10 h-10 text-blue-400 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
-                    </svg>
-                    <h4 class="text-lg font-semibold text-white mb-2">1. Selecciona</h4>
-                    <p class="text-gray-400 text-sm">
-                        Elige tu sede para ver la oferta académica oficial y actualizada.
-                    </p>
+                <!-- Subheading -->
+                <p class="text-xl md:text-2xl text-gray-400 max-w-3xl mx-auto mb-8">
+                    Olvídate de los conflictos de horario. Nuestra sistema encuentra la mejor combinación de ramos para ti.
+                </p>
+
+                <!-- CTA Principal -->
+                <div class="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
+                    <div class="w-full sm:w-auto">
+                        <form method="GET" action="{% url 'lista_asignaturas' %}" class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                            <select name="sede" required
+                                    class="w-full sm:w-64 px-6 py-4 rounded-lg border border-gray-600 bg-gray-800 text-white text-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="" disabled selected>Selecciona tu sede</option>
+                                {% for sede in sedes %}
+                                    <option value="{{ sede }}">{{ sede }}</option>
+                                {% endfor %}
+                            </select>
+                            <button type="submit" class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-lg text-lg font-semibold transition-all hover:scale-105 shadow-lg hover:shadow-blue-500/50">
+                                Comenzar
+                            </button>
+                        </form>
+                    </div>
                 </div>
 
-                <div class="bg-gray-800 p-6 rounded-lg border border-gray-700">
-                    <svg class="w-10 h-10 text-blue-400 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                    </svg>
-                    <h4 class="text-lg font-semibold text-white mb-2">2. Construye</h4>
-                    <p class="text-gray-400 text-sm">
-                        Añade ramos con un clic. El sistema evita los topes de horario por ti.
-                    </p>
+                <!-- Stats -->
+                <div class="grid grid-cols-3 gap-8 max-w-2xl mx-auto text-center">
+                    <div>
+                        <div class="text-3xl font-bold text-blue-400 mb-1">3 min</div>
+                        <div class="text-sm text-gray-500">Tiempo promedio</div>
+                    </div>
+                    <div>
+                        <div class="text-3xl font-bold text-green-400 mb-1">100%</div>
+                        <div class="text-sm text-gray-500">Sin conflictos</div>
+                    </div>
+                    <div>
+                        <div class="text-3xl font-bold text-purple-400 mb-1">10+</div>
+                        <div class="text-sm text-gray-500">Opciones generadas</div>
+                    </div>
                 </div>
-
-                <div class="bg-gray-800 p-6 rounded-lg border border-gray-700">
-                    <svg class="w-10 h-10 text-blue-400 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
-                    </svg>
-                    <h4 class="text-lg font-semibold text-white mb-2">3. Exporta</h4>
-                    <p class="text-gray-400 text-sm">
-                        Descarga tu horario en PDF o impórtalo a Google Calendar (.ics).
-                    </p>
-                </div>
-
             </div>
-        </section>
+        </div>
+    </section>
 
-        <footer class="text-center text-sm text-gray-500 mt-12 space-y-2">
-            <p>
-                <strong class="text-white">MiHorario </strong> — Desarrollado por
-                <span class="text-white font-medium">Vicente Canio</span>
-            </p>
-            <p>
-                Proyecto para estudiantes de
-                <span class="text-blue-400 font-semibold">Duoc UC</span>
-            </p>
-        </footer>
-    </div>
+    <!-- FEATURES SECTION -->
+    <section class="py-20 px-4 bg-gray-900/50">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-5xl font-bold text-white mb-4">Todo lo que necesitas para tu horario perfecto</h2>
+                <p class="text-xl text-gray-400">Diseñado específicamente para estudiantes Duoc UC</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Feature 1: Generador Automático -->
+                <div class="bg-gray-800 border-2 border-blue-500 rounded-2xl p-8 hover:transform hover:scale-105 transition-all">
+                    <div class="w-14 h-14 bg-blue-500/20 rounded-xl flex items-center justify-center mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold text-white mb-3">Generador Automático</h3>
+                    <p class="text-gray-400 mb-4">
+                        Selecciona tus ramos y deja que el sistema encuentre las 10 mejores combinaciones sin conflictos. 
+                        Sistema de puntuación inteligente según tus preferencias.
+                    </p>
+                </div>
+
+                <!-- Feature 2: Detección de Conflictos -->
+                <div class="bg-gray-800 rounded-2xl p-8 hover:transform hover:scale-105 transition-all border border-gray-700">
+                    <div class="w-14 h-14 bg-red-500/20 rounded-xl flex items-center justify-center mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold text-white mb-3">Cero Topes</h3>
+                    <p class="text-gray-400">
+                        Sistema inteligente que detecta y previene conflictos de horario automáticamente. 
+                        Olvídate de revisar manualmente cada sección.
+                    </p>
+                </div>
+
+                <!-- Feature 3: Vista Visual -->
+                <div class="bg-gray-800 rounded-2xl p-8 hover:transform hover:scale-105 transition-all border border-gray-700">
+                    <div class="w-14 h-14 bg-green-500/20 rounded-xl flex items-center justify-center mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold text-white mb-3">Vista Interactiva</h3>
+                    <p class="text-gray-400">
+                        Calendario visual con colores y horarios en tiempo real. 
+                        Ve exactamente cómo quedará tu semana antes de inscribir.
+                    </p>
+                </div>
+
+                <!-- Feature 4: Exportación -->
+                <div class="bg-gray-800 rounded-2xl p-8 hover:transform hover:scale-105 transition-all border border-gray-700">
+                    <div class="w-14 h-14 bg-purple-500/20 rounded-xl flex items-center justify-center mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold text-white mb-3">Exporta Fácil</h3>
+                    <p class="text-gray-400">
+                        Descarga tu horario en PDF o impórtalo directamente a Google Calendar/Outlook. 
+                        Siempre lo tendrás a mano.
+                    </p>
+                </div>
+
+                <!-- Feature 5: Filtros Avanzados -->
+                <div class="bg-gray-800 rounded-2xl p-8 hover:transform hover:scale-105 transition-all border border-gray-700">
+                    <div class="w-14 h-14 bg-yellow-500/20 rounded-xl flex items-center justify-center mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold text-white mb-3">Búsqueda Inteligente</h3>
+                    <p class="text-gray-400">
+                        Filtra por carrera, nivel, jornada y nombre. 
+                        Encuentra exactamente lo que necesitas en segundos.
+                    </p>
+                </div>
+
+                <!-- Feature 6: Guardar Horarios -->
+                <div class="bg-gray-800 rounded-2xl p-8 hover:transform hover:scale-105 transition-all border border-gray-700">
+                    <div class="w-14 h-14 bg-indigo-500/20 rounded-xl flex items-center justify-center mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold text-white mb-3">Múltiples Horarios</h3>
+                    <p class="text-gray-400">
+                        Crea y guarda hasta 5 combinaciones diferentes. 
+                        Compara opciones antes de tomar tu decisión final.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- HOW IT WORKS SECTION -->
+    <section class="py-20 px-4">
+        <div class="max-w-5xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-5xl font-bold text-white mb-4">Tan fácil que lo harás en 3 pasos</h2>
+                <p class="text-xl text-gray-400">Sin complicaciones, sin errores</p>
+            </div>
+
+            <div class="space-y-12">
+                <!-- Step 1 -->
+                <div class="flex flex-col md:flex-row items-center gap-8 bg-gray-800 rounded-2xl p-8 border border-gray-700">
+                    <div class="flex-shrink-0">
+                        <div class="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center text-2xl font-bold">1</div>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="text-2xl font-bold text-white mb-2">Selecciona tu sede y carrera</h3>
+                        <p class="text-gray-400">Filtra la oferta académica según tu programa. Todo actualizado en tiempo real.</p>
+                    </div>
+                    <div class="flex-shrink-0 bg-gray-900 rounded-lg p-4 border border-gray-700">
+                        <div class="text-sm text-gray-500 mb-1">Filtros disponibles:</div>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="px-2 py-1 bg-blue-600/20 text-blue-300 rounded text-xs">Carrera</span>
+                            <span class="px-2 py-1 bg-blue-600/20 text-blue-300 rounded text-xs">Jornada</span>
+                            <span class="px-2 py-1 bg-blue-600/20 text-blue-300 rounded text-xs">Nivel</span>
+                            <span class="px-2 py-1 bg-blue-600/20 text-blue-300 rounded text-xs">Nombre</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="flex flex-col md:flex-row items-center gap-8 bg-gray-800 rounded-2xl p-8 border border-gray-700">
+                    <div class="flex-shrink-0">
+                        <div class="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center text-2xl font-bold">2</div>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="text-2xl font-bold text-white mb-2">Usa el Generador Automático o selecciona manualmente</h3>
+                        <p class="text-gray-400">
+                            <strong class="text-white">Modo Automático:</strong> Elige tus ramos y deja que el sistema encuentre las mejores combinaciones.
+                            <br>
+                            <strong class="text-white">Modo Manual:</strong> Añade secciones una por una. El sistema previene conflictos.
+                        </p>
+                    </div>
+                    <div class="flex-shrink-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-20 h-20 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="flex flex-col md:flex-row items-center gap-8 bg-gray-800 rounded-2xl p-8 border border-gray-700">
+                    <div class="flex-shrink-0">
+                        <div class="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center text-2xl font-bold">3</div>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="text-2xl font-bold text-white mb-2">Exporta y guarda</h3>
+                        <p class="text-gray-400">Descarga en PDF, exporta a Google Calendar o guarda múltiples versiones para comparar.</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <div class="px-3 py-2 bg-green-600/20 text-green-300 rounded-lg text-sm border border-green-600/30">📅 .ics</div>
+                        <div class="px-3 py-2 bg-red-600/20 text-red-300 rounded-lg text-sm border border-red-600/30">📄 PDF</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ SECTION -->
+    <section class="py-20 px-4 bg-gray-900/50">
+        <div class="max-w-3xl mx-auto">
+            <h2 class="text-4xl font-bold text-white text-center mb-12">Preguntas Frecuentes</h2>
+            <div class="space-y-4">
+                {% comment %} FAQ Item 1 {% endcomment %}
+                <details class="group bg-gray-800 rounded-lg border border-gray-700 overflow-hidden">
+                    <summary class="cursor-pointer p-6 text-lg font-semibold text-white flex items-center justify-between hover:bg-gray-700 transition">
+                        ¿Cómo funciona el Generador Automático?
+                        <svg class="w-5 h-5 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </summary>
+                    <div class="px-6 pb-6 text-gray-400">
+                        Usamos un algoritmo de backtracking optimizado que explora todas las combinaciones posibles de secciones, 
+                        elimina las que tienen conflictos, y las ordena según tus preferencias (horario, huecos, modalidad virtual, etc.). 
+                        Te mostramos las 10 mejores opciones con puntuación de 0-100.
+                    </div>
+                </details>
+
+                {% comment %} FAQ Item 2 {% endcomment %}
+                <details class="group bg-gray-800 rounded-lg border border-gray-700 overflow-hidden">
+                    <summary class="cursor-pointer p-6 text-lg font-semibold text-white flex items-center justify-between hover:bg-gray-700 transition">
+                        ¿La oferta académica está actualizada?
+                        <svg class="w-5 h-5 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </summary>
+                    <div class="px-6 pb-6 text-gray-400">
+                        Los datos se cargan desde el Excel oficial de tu sede. Recomendamos verificar la información 
+                        en el sistema oficial de Duoc antes de inscribir, ya que pueden existir cambios de última hora.
+                    </div>
+                </details>
+
+                {% comment %} FAQ Item 3 {% endcomment %}
+                <details class="group bg-gray-800 rounded-lg border border-gray-700 overflow-hidden">
+                    <summary class="cursor-pointer p-6 text-lg font-semibold text-white flex items-center justify-between hover:bg-gray-700 transition">
+                        ¿Puedo guardar múltiples horarios?
+                        <svg class="w-5 h-5 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </summary>
+                    <div class="px-6 pb-6 text-gray-400">
+                        Sí, puedes crear y guardar hasta 5 horarios diferentes en tu cuenta. 
+                        Ideal para comparar opciones o tener un plan B.
+                    </div>
+                </details>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="bg-gray-900 border-t border-gray-800 py-12 px-4">
+        <div class="max-w-6xl mx-auto text-center">
+            <h3 class="text-2xl font-bold text-white mb-2">MiHorario</h3>
+            <p class="text-gray-400 mb-6">Desarrollado por <span class="text-white font-medium">Vicente Canio</span></p>
+            <p class="text-gray-500 text-sm">Proyecto para estudiantes de <span class="text-blue-400 font-semibold">Duoc UC</span></p>
+            <div class="mt-8 pt-8 border-t border-gray-800 text-gray-600 text-sm">
+                © 2025 MiHorario. Hecho con ❤️ para la comunidad Duoc UC.
+            </div>
+        </div>
+    </footer>
+
 </body>
 </html>
