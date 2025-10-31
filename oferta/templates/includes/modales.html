@@ -1,14 +1,23 @@
+<!-- MODAL: Conflicto de Horario -->
 <div id="modal-solapamiento" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75 hidden">
     <div class="relative w-full max-w-md p-6 bg-gray-800 rounded-lg shadow-xl border border-gray-700">
-        
+
+        <!-- Ícono -->
         <div class="flex items-center justify-center mb-4">
-            <div class="flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-900 sm:mx-0 sm:h-10 sm:w-10">
-                <svg class="h-6 w-6 text-red-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+            <div class="flex items-center justify-center h-12 w-12 rounded-full bg-red-900">
+                <svg class="h-6 w-6 text-red-400" xmlns="http://www.w3.org/2000/svg" fill="none"
+                    viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 
+                           3.374 1.948 3.374h14.71c1.73 0 
+                           2.813-1.874 1.948-3.374L13.949 
+                           3.378c-.866-1.5-3.032-1.5-3.898 
+                           0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
                 </svg>
             </div>
         </div>
-        
+
+        <!-- Contenido -->
         <h3 id="modal-titulo" class="text-lg font-semibold text-center text-white mb-2">
             Conflicto de Horario
         </h3>
@@ -16,24 +25,38 @@
             El mensaje de error irá aquí.
         </p>
 
+        <!-- Botón -->
         <div class="text-center">
-            <button id="modal-btn-cerrar" type="button" class="w-full sm:w-auto inline-flex justify-center rounded-md border border-transparent shadow-sm px-6 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-gray-800">
+            <button id="modal-btn-cerrar" type="button"
+                class="w-full sm:w-auto inline-flex justify-center rounded-md border border-transparent shadow-sm px-6 py-2 
+                       bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none 
+                       focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-gray-800">
                 Entendido
             </button>
         </div>
     </div>
 </div>
+
+<!-- MODAL: Confirmar Reemplazo -->
 <div id="modal-confirmacion" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75 hidden">
     <div class="relative w-full max-w-md p-6 bg-gray-800 rounded-lg shadow-xl border border-gray-700">
-        
+
+        <!-- Ícono -->
         <div class="flex items-center justify-center mb-4">
-            <div class="flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-blue-900 sm:mx-0 sm:h-10 sm:w-10">
-                <svg class="h-6 w-6 text-blue-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />
+            <div class="flex items-center justify-center h-12 w-12 rounded-full bg-blue-900">
+                <svg class="h-6 w-6 text-blue-400" xmlns="http://www.w3.org/2000/svg" fill="none"
+                    viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M9.879 7.519c1.171-1.025 3.071-1.025 
+                           4.242 0 1.172 1.025 1.172 2.687 
+                           0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 
+                           1.827v.75M21 12a9 9 0 1 1-18 
+                           0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />
                 </svg>
             </div>
         </div>
-        
+
+        <!-- Contenido -->
         <h3 id="confirm-modal-titulo" class="text-lg font-semibold text-center text-white mb-2">
             Confirmar Reemplazo
         </h3>
@@ -41,41 +64,57 @@
             El mensaje de confirmación irá aquí.
         </p>
 
+        <!-- Botones -->
         <div class="flex flex-col-reverse sm:flex-row sm:justify-center sm:gap-4">
-            <button id="confirm-modal-btn-cancelar" type="button" class="w-full sm:w-auto inline-flex justify-center rounded-md border border-gray-600 shadow-sm px-6 py-2 bg-gray-700 text-base font-medium text-white hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 focus:ring-offset-gray-800 mt-3 sm:mt-0">
+            <button id="confirm-modal-btn-cancelar" type="button"
+                class="w-full sm:w-auto inline-flex justify-center rounded-md border border-gray-600 shadow-sm px-6 py-2 
+                       bg-gray-700 text-base font-medium text-white hover:bg-gray-600 focus:outline-none 
+                       focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 focus:ring-offset-gray-800 mt-3 sm:mt-0">
                 Cancelar
             </button>
-            <button id="confirm-modal-btn-aceptar" type="button" class="w-full sm:w-auto inline-flex justify-center rounded-md border border-transparent shadow-sm px-6 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 focus:ring-offset-gray-800">
+            <button id="confirm-modal-btn-aceptar" type="button"
+                class="w-full sm:w-auto inline-flex justify-center rounded-md border border-transparent shadow-sm px-6 py-2 
+                       bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none 
+                       focus:ring-2 focus:ring-offset-2 focus:ring-red-500 focus:ring-offset-gray-800">
                 Reemplazar
             </button>
         </div>
     </div>
 </div>
 
+<!-- MODAL: Guardar Horario -->
 <div id="modal-guardar-horario" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75 hidden">
     <div class="relative w-full max-w-md p-6 bg-gray-800 rounded-lg shadow-xl border border-gray-700">
-        
+
         <h3 id="guardar-modal-titulo" class="text-lg font-semibold text-center text-white mb-4">
             Guardar Horario
         </h3>
-        
+
+        <!-- Contenido -->
         <div class="flex flex-col gap-4">
             <div>
                 <label for="guardar-horario-nombre" class="block text-sm font-medium text-gray-300 mb-2">
                     Nombre del horario
                 </label>
-                <input type="text" id="guardar-horario-nombre" 
-                    class="w-full px-4 py-3 rounded-lg border border-gray-600 bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Ej: Horario Ideal"
-                    maxlength="30">
+                <input type="text" id="guardar-horario-nombre"
+                    class="w-full px-4 py-3 rounded-lg border border-gray-600 bg-gray-700 text-white 
+                           focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Ej: Horario Ideal" maxlength="30">
                 <p id="guardar-modal-error" class="text-red-400 text-sm mt-2 hidden"></p>
             </div>
 
+            <!-- Botones -->
             <div class="flex flex-col-reverse sm:flex-row sm:justify-center sm:gap-4">
-                <button id="guardar-modal-btn-cancelar" type="button" class="w-full sm:w-auto inline-flex justify-center rounded-md border border-gray-600 shadow-sm px-6 py-2 bg-gray-700 text-base font-medium text-white hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 focus:ring-offset-gray-800 mt-3 sm:mt-0">
+                <button id="guardar-modal-btn-cancelar" type="button"
+                    class="w-full sm:w-auto inline-flex justify-center rounded-md border border-gray-600 shadow-sm px-6 py-2 
+                           bg-gray-700 text-base font-medium text-white hover:bg-gray-600 focus:outline-none 
+                           focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 focus:ring-offset-gray-800 mt-3 sm:mt-0">
                     Cancelar
                 </button>
-                <button id="guardar-modal-btn-aceptar" type="button" class="w-full sm:w-auto inline-flex justify-center rounded-md border border-transparent shadow-sm px-6 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-gray-800">
+                <button id="guardar-modal-btn-aceptar" type="button"
+                    class="w-full sm:w-auto inline-flex justify-center rounded-md border border-transparent shadow-sm px-6 py-2 
+                           bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none 
+                           focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-gray-800">
                     Guardar
                 </button>
             </div>
@@ -83,17 +122,26 @@
     </div>
 </div>
 
+<!-- MODAL: Eliminar Horario -->
 <div id="modal-eliminar-horario" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75 hidden">
     <div class="relative w-full max-w-md p-6 bg-gray-800 rounded-lg shadow-xl border border-gray-700">
-        
+
+        <!-- Ícono -->
         <div class="flex items-center justify-center mb-4">
-            <div class="flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-900 sm:mx-0 sm:h-10 sm:w-10">
-                <svg class="h-6 w-6 text-red-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+            <div class="flex items-center justify-center h-12 w-12 rounded-full bg-red-900">
+                <svg class="h-6 w-6 text-red-400" xmlns="http://www.w3.org/2000/svg" fill="none"
+                    viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 
+                           3.374 1.948 3.374h14.71c1.73 0 
+                           2.813-1.874 1.948-3.374L13.949 
+                           3.378c-.866-1.5-3.032-1.5-3.898 
+                           0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
                 </svg>
             </div>
         </div>
-        
+
+        <!-- Contenido -->
         <h3 id="eliminar-modal-titulo" class="text-lg font-semibold text-center text-white mb-2">
             Confirmar Eliminación
         </h3>
@@ -101,13 +149,190 @@
             ¿Estás seguro de que quieres eliminar este horario? Esta acción no se puede deshacer.
         </p>
 
+        <!-- Botones -->
         <div class="flex flex-col-reverse sm:flex-row sm:justify-center sm:gap-4">
-            <button id="eliminar-modal-btn-cancelar" type="button" class="w-full sm:w-auto inline-flex justify-center rounded-md border border-gray-600 shadow-sm px-6 py-2 bg-gray-700 text-base font-medium text-white hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 focus:ring-offset-gray-800 mt-3 sm:mt-0">
+            <button id="eliminar-modal-btn-cancelar" type="button"
+                class="w-full sm:w-auto inline-flex justify-center rounded-md border border-gray-600 shadow-sm px-6 py-2 
+                       bg-gray-700 text-base font-medium text-white hover:bg-gray-600 focus:outline-none 
+                       focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 focus:ring-offset-gray-800 mt-3 sm:mt-0">
                 Cancelar
             </button>
-            <button id="eliminar-modal-btn-aceptar" type="button" class="w-full sm:w-auto inline-flex justify-center rounded-md border border-transparent shadow-sm px-6 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 focus:ring-offset-gray-800">
+            <button id="eliminar-modal-btn-aceptar" type="button"
+                class="w-full sm:w-auto inline-flex justify-center rounded-md border border-transparent shadow-sm px-6 py-2 
+                       bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none 
+                       focus:ring-2 focus:ring-offset-2 focus:ring-red-500 focus:ring-offset-gray-800">
                 Eliminar
             </button>
         </div>
     </div>
 </div>
+
+<!-- Modal Generador Automático - Añadir al final de includes/modales.html -->
+
+<div id="modal-generador" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75 hidden overflow-y-auto">
+    <div class="relative w-full max-w-6xl mx-4 my-8 bg-gray-800 rounded-lg shadow-xl border border-gray-700 max-h-[90vh] overflow-y-auto">
+        
+        <!-- Header del Modal -->
+        <div class="sticky top-0 z-10 bg-gray-800 border-b border-gray-700 px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+                <h3 class="text-xl font-semibold text-white">Generador Automático de Horarios</h3>
+            </div>
+            <button id="modal-generador-btn-cerrar" class="text-gray-400 hover:text-white transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+
+        <!-- Body del Modal -->
+        <div class="p-6">
+            
+            <!-- Paso 1: Selección de Asignaturas -->
+            <div id="generador-paso-seleccion" class="space-y-6">
+                
+                <!-- Filtros -->
+                <div class="bg-gray-700 rounded-lg p-4 border border-gray-600">
+                    <h4 class="text-sm font-semibold text-gray-300 mb-3">Filtros</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <select id="gen-filter-carrera" class="px-3 py-2 rounded-lg border border-gray-600 bg-gray-800 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="">Todas las carreras</option>
+                        </select>
+                        <select id="gen-filter-nivel" class="px-3 py-2 rounded-lg border border-gray-600 bg-gray-800 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="">Todos los niveles</option>
+                        </select>
+                        <select id="gen-filter-jornada" class="px-3 py-2 rounded-lg border border-gray-600 bg-gray-800 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="">Todas las jornadas</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Lista de Asignaturas -->
+                <div>
+                    <div class="flex items-center justify-between mb-3">
+                        <h4 class="text-sm font-semibold text-white">Selecciona tus asignaturas (máx. 8)</h4>
+                        <button id="gen-btn-limpiar" class="text-sm text-red-400 hover:text-red-300 transition-colors">
+                            Limpiar selección
+                        </button>
+                    </div>
+                    <div id="gen-asignaturas-lista" class="space-y-2 max-h-96 overflow-y-auto bg-gray-900 rounded-lg p-3 border border-gray-700">
+                        <p class="text-gray-400 text-sm text-center py-4">Cargando asignaturas...</p>
+                    </div>
+                </div>
+
+                <!-- Resumen de Selección -->
+                <div class="bg-blue-900/20 border border-blue-700/50 rounded-lg p-4">
+                    <h4 class="text-sm font-semibold text-blue-300 mb-2">Asignaturas seleccionadas</h4>
+                    <div id="gen-resumen-seleccion" class="flex flex-wrap gap-2">
+                        <p class="text-gray-400 text-sm italic">Ninguna asignatura seleccionada</p>
+                    </div>
+                </div>
+
+                <!-- Preferencias -->
+                <div class="bg-gray-700 rounded-lg p-4 border border-gray-600">
+                    <h4 class="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                        </svg>
+                        Preferencias
+                    </h4>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs text-gray-300 mb-2">⏰ Preferencia de Horario</label>
+                            <select id="gen-pref-horario" class="w-full px-3 py-2 rounded-lg border border-gray-600 bg-gray-800 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="neutro">Sin preferencia</option>
+                                <option value="entrar_temprano">Entrar lo más temprano</option>
+                                <option value="salir_temprano">Salir lo más temprano</option>
+                                <option value="entrar_tarde">Entrar lo más tarde</option>
+                                <option value="salir_tarde">Salir lo más tarde</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs text-gray-300 mb-2">🌐 Clases virtuales</label>
+                            <select id="gen-pref-virtuales" class="w-full px-3 py-2 rounded-lg border border-gray-600 bg-gray-800 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="neutro">Sin preferencia</option>
+                                <option value="si">Preferir virtuales</option>
+                                <option value="no">Preferir presenciales</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <label class="flex items-center gap-2 mt-3 cursor-pointer">
+                        <input type="checkbox" id="gen-pref-minimizar-huecos" checked 
+                            class="w-4 h-4 rounded border-gray-600 bg-gray-800 text-blue-600 focus:ring-2 focus:ring-blue-500">
+                        <span class="text-xs text-gray-300">⚡ Minimizar huecos entre clases</span>
+                    </label>
+                </div>
+
+                <!-- Botón Generar -->
+                <button id="gen-btn-generar" 
+                    class="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white px-6 py-3 rounded-lg font-medium transition-colors flex items-center justify-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                    Generar Horarios Óptimos
+                </button>
+
+                <!-- Spinner -->
+                <div id="gen-spinner" class="hidden text-center py-6">
+                    <svg class="animate-spin h-8 w-8 text-blue-500 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <p class="text-gray-400 text-sm mt-2">Generando combinaciones...</p>
+                </div>
+            </div>
+
+            <!-- Paso 2: Resultados (inicialmente oculto) -->
+            <div id="generador-paso-resultados" class="hidden space-y-4">
+                <!-- Aquí se renderizarán los resultados dinámicamente -->
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<style>
+/* Animación de entrada para el modal */
+#modal-generador.show {
+    animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Scrollbar personalizado */
+#gen-asignaturas-lista::-webkit-scrollbar,
+#modal-generador::-webkit-scrollbar {
+    width: 8px;
+}
+
+#gen-asignaturas-lista::-webkit-scrollbar-track,
+#modal-generador::-webkit-scrollbar-track {
+    background: #1f2937;
+    border-radius: 4px;
+}
+
+#gen-asignaturas-lista::-webkit-scrollbar-thumb,
+#modal-generador::-webkit-scrollbar-thumb {
+    background: #4b5563;
+    border-radius: 4px;
+}
+
+#gen-asignaturas-lista::-webkit-scrollbar-thumb:hover,
+#modal-generador::-webkit-scrollbar-thumb:hover {
+    background: #6b7280;
+}
+</style>

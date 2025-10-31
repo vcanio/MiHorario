@@ -15,7 +15,6 @@ urlpatterns = [
     path('cargar/', views.cargar_excel, name='cargar_excel'),
 
     # --- GENERADOR DE HORARIOS ---
-    path('generador/', views.generador_horarios, name='generador_horarios'),
     path('api/generador/asignaturas/', views.api_asignaturas_generador, name='api_asignaturas_generador'),
     path('api/generador/generar/', views.api_generar_horarios, name='api_generar_horarios'),
 

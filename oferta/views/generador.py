@@ -13,39 +13,9 @@ from django.http import JsonResponse
 
 from ..models import Asignatura
 from .generador_utils import (
-    generar_combinaciones_optimizado,
-    calcular_metricas_horario,
-    calcular_puntuacion_normalizada
+    generar_combinaciones_optimizado,    calcular_puntuacion_normalizada
 )
 
-
-@login_required
-def generador_horarios(request):
-    """
-    Interfaz del generador automático de horarios
-    """
-    sede = request.GET.get('sede')
-    
-    if not sede:
-        return redirect('inicio')
-    
-    query_filtros = Asignatura.objects.filter(sede=sede)
-    
-    carreras = query_filtros.values_list('carrera', flat=True).distinct().order_by('carrera')
-    niveles = query_filtros.values_list('nivel', flat=True).distinct().order_by('nivel')
-    jornadas = query_filtros.values_list('jornada', flat=True).distinct().order_by('jornada')
-
-    context = {
-        'sede': sede,
-        'carreras': carreras,
-        'niveles': niveles,
-        'jornadas': jornadas,
-    }
-    
-    return render(request, 'generador_horarios.html', context)
-
-
-@login_required
 @require_http_methods(["GET"])
 def api_asignaturas_generador(request):
     """
@@ -98,8 +68,6 @@ def api_asignaturas_generador(request):
     
     return JsonResponse({'asignaturas': result})
 
-
-@login_required
 @require_http_methods(["POST"])
 def api_generar_horarios(request):
     """

@@ -16,7 +16,6 @@ from .horarios_guardados import (
 )
 
 from .generador import (
-    generador_horarios,
     api_asignaturas_generador,
     api_generar_horarios
 )

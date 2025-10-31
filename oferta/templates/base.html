@@ -33,10 +33,6 @@
                                class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
                                 Asignaturas
                             </a>
-                            <a href="{% url 'generador_horarios' %}?sede={{ request.GET.sede }}" 
-                               class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium flex items-center gap-1">
-                                Generador
-                            </a>
                         {% endif %}
                     </div>
                 </div>
@@ -97,10 +93,6 @@
                     <a href="{% url 'lista_asignaturas' %}?sede={{ request.GET.sede }}" 
                        class="text-gray-300 block hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-base font-medium">
                         Asignaturas
-                    </a>
-                    <a href="{% url 'generador_horarios' %}?sede={{ request.GET.sede }}" 
-                       class="text-gray-300 block hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-base font-medium">
-                        Generador Automático
                     </a>
                 {% endif %}
 

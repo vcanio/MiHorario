@@ -3,14 +3,34 @@
 
 {% block content %}
 <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
-<h1 class="text-3xl font-bold mb-6">
-    Oferta académica
-    {% if request.GET.sede %}
-        <span class="text-2xl font-normal text-gray-400"> - {{ request.GET.sede }}</span>
-    {% else %}
-        <span class="text-2xl font-normal text-gray-400"> - (Sin sede seleccionada)</span>
-    {% endif %}
-</h1>
+
+<!-- Encabezado principal con botón a la derecha -->
+<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 gap-4">
+    
+    <!-- Título -->
+    <h1 class="text-3xl font-bold text-white">
+        Oferta académica
+        {% if request.GET.sede %}
+            <span class="text-2xl font-normal text-gray-400"> - {{ request.GET.sede }}</span>
+        {% else %}
+            <span class="text-2xl font-normal text-gray-400"> - (Sin sede seleccionada)</span>
+        {% endif %}
+    </h1>
+
+    <!-- Botón Generador Automático -->
+    <div class="flex flex-col items-center sm:items-end">
+        <button 
+            id="btn-abrir-generador" 
+            class="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 
+                text-white px-6 py-3 rounded-lg font-medium transition-all flex items-center justify-center gap-2 
+                shadow-lg hover:shadow-xl hover:scale-[1.02] w-full sm:w-auto">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+            Generador de Horarios
+        </button>
+    </div>
+</div>
 
 {% include "includes/filtros.html" %}
 {% include "includes/tabla_asignaturas.html" %}
@@ -90,6 +110,18 @@
 {% include "includes/modales.html" %}
 
 <script type="module" src="{% static 'js/main.js' %}"></script>
+<script type="module">
+    import { initGeneradorModal, abrirModalGenerador } from '{% static "js/generadorModal.js" %}';
+    
+    document.addEventListener('DOMContentLoaded', () => {
+        initGeneradorModal();
+        
+        const btnAbrirGenerador = document.getElementById('btn-abrir-generador');
+        if (btnAbrirGenerador) {
+            btnAbrirGenerador.addEventListener('click', abrirModalGenerador);
+        }
+    });
+</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script>

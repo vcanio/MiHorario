@@ -90,21 +90,27 @@ function renderClases(horarioBase) {
 function generarHTMLSeleccionadas() {
     const seleccionadas = getSeleccionadas();
     const items = Object.entries(seleccionadas).map(([sigla, datos]) => `
-        <li class="flex justify-between items-center px-4 py-3 bg-gray-800 hover:bg-gray-700">
-            <span>${datos.nombre} (${datos.seccion})${datos.virtual ? ' <span class="text-green-400">(virtual sincrónica)</span>' : ''}</span>
-            <button data-accion="quitar-asignatura" data-sigla="${sigla}" class="p-1 text-red-500 hover:text-red-400" title="Quitar asignatura">
+        <li class="flex justify-between items-center px-4 py-3 bg-gray-800 rounded-lg mb-2 hover:bg-gray-700 transition-colors shadow-sm">
+            <div class="flex flex-col">
+                <span class="font-medium text-white">${datos.nombre} (${datos.seccion})</span>
+                ${datos.virtual ? '<span class="text-green-400 text-sm mt-1">Virtual sincrónica</span>' : ''}
+            </div>
+            <button data-accion="quitar-asignatura" data-sigla="${sigla}" 
+                    class="p-2 text-red-500 hover:text-red-400 rounded-full transition-colors"
+                    title="Quitar asignatura">
                 ${iconoEquis}
             </button>
         </li>
     `).join('');
 
     return `
-        <h5 class="text-xl font-semibold mb-2">Asignaturas seleccionadas</h5>
-        <ul class="divide-y divide-gray-700 rounded border border-gray-700 overflow-hidden" id="lista-seleccionadas">
-            ${items || `<li class="px-4 py-3 text-gray-400 bg-gray-800">No hay asignaturas seleccionadas</li>`}
+        <h5 class="text-xl font-semibold mb-4 text-white">Asignaturas seleccionadas</h5>
+        <ul class="bg-gray-900 p-4 rounded-2xl border border-gray-700 shadow-inner overflow-hidden" id="lista-seleccionadas">
+            ${items || `<li class="px-4 py-3 text-gray-400 text-center">No hay asignaturas seleccionadas</li>`}
         </ul>
     `;
 }
+
 
 function generarHTMLHorario(horarioBase) {
     const horas = generarHoras('08:30', '23:00');

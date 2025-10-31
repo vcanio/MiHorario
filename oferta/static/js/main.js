@@ -292,3 +292,6 @@ document.addEventListener('DOMContentLoaded', () => {
         cargarListaHorariosGuardados();
     }
 });
+
+// Exportar para uso desde generadorModal.js
+export { actualizarHorario };
