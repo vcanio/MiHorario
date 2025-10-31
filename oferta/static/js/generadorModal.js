@@ -448,6 +448,11 @@ window.generadorAplicarHorario = function() {
     
     cerrarModalGenerador();
     mostrarNotificacion('✓ Horario aplicado correctamente', 'success');
+
+    const horarioDiv = document.getElementById('horario');
+    if (horarioDiv) {
+        horarioDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
 };
 
 // ══════════════════════════════════════════════════════════
