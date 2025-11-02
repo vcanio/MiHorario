@@ -31,23 +31,31 @@
 
 <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mt-6">
 
-    <!-- Columna Principal: Filtros y Tabla (8 columnas) -->
     <div class="lg:col-span-9">
         
-        <!-- Card de Filtros y Tabla -->
         <div class="bg-gray-900/50 backdrop-blur-sm rounded-2xl border border-gray-700/50 shadow-xl overflow-hidden">
         
-            <!-- Filtros -->
             <div class="p-6 border-b border-gray-700/50">
                 {% include "includes/filtros.html" %}
             </div>
 
-            <!-- Tabla de Asignaturas -->
             {% include "includes/tabla_asignaturas.html" %}
         
         </div>
+    </div>
 
-        <!-- Paginación -->
+    <div class="lg:col-span-3">
+        
+        <div class="lg:sticky lg:top-6">
+            <div id="seleccionadas-container">
+                </div>
+        </div>
+
+    </div>
+
+</div> <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+    <div class="lg:col-span-9">
+        
         <nav class="mt-6 flex flex-wrap justify-center items-center gap-3">
             {% if asignaturas.has_previous %}
                 <a href="?{% if request.GET %}{{ request.GET.urlencode }}&{% endif %}page={{ asignaturas.previous_page_number }}"
@@ -55,14 +63,12 @@
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                     </svg>
-                    Anterior
                 </a>
             {% else %}
                 <span class="px-4 py-2 bg-gray-800/50 text-gray-500 rounded-lg cursor-not-allowed border border-gray-700/50 flex items-center gap-2">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                     </svg>
-                    Anterior
                 </span>
             {% endif %}
 
@@ -73,36 +79,23 @@
             {% if asignaturas.has_next %}
                 <a href="?{% if request.GET %}{{ request.GET.urlencode }}&{% endif %}page={{ asignaturas.next_page_number }}"
                 class="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-white rounded-lg transition-colors border border-gray-700 hover:border-gray-600 flex items-center gap-2">
-                    Siguiente
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                     </svg>
                 </a>
             {% else %}
                 <span class="px-4 py-2 bg-gray-800/50 text-gray-500 rounded-lg cursor-not-allowed border border-gray-700/50 flex items-center gap-2">
-                    Siguiente
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                     </svg>
                 </span>
             {% endif %}
         </nav>
-
-    </div>
-
-    <!-- Columna Lateral: Asignaturas Seleccionadas (4 columnas) -->
-    <div class="lg:col-span-3">
         
-        <!-- Contenedor Sticky -->
-        <div class="lg:sticky lg:top-6">
-            <div id="seleccionadas-container">
-                <!-- Contenido generado dinámicamente -->
-            </div>
-        </div>
-
     </div>
-
+    <div class="lg:col-span-3"></div>
 </div>
+
 
 <div id="horario" class="mt-8 mb-4">
 </div>
