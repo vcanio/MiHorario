@@ -425,6 +425,7 @@ window.generadorAplicarHorario = function() {
             nombre: asig.nombre,
             seccion: asig.seccion,
             virtual: asig.virtual,
+            docente: asig.docente,
             horarios: asig.horarios.map(h => ({
                 dia: diasLargos[h.dia] || h.dia,
                 inicio: h.inicio,

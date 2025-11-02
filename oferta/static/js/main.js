@@ -40,6 +40,9 @@ window.exportarComoPDF = exportarComoPDF;
 // ============================================================
 
 function quitarAsignatura(sigla) {
+    // Obtenemos los datos ANTES de eliminar para el toast
+    const asignaturaEliminada = getAsignaturaSeleccionada(sigla);
+
     removeSeleccionada(sigla);
     actualizarHorario();
 
@@ -47,6 +50,14 @@ function quitarAsignatura(sigla) {
         btn.disabled = false;
         btn.innerHTML = iconoPlus;
     });
+
+    // Mostramos el toast
+    if (asignaturaEliminada) {
+        mostrarNotificacion(
+            `${asignaturaEliminada.nombre} (${asignaturaEliminada.seccion}) eliminada`, 
+            'info' 
+        );
+    }
 }
 
 function seleccionarAsignatura(btn) {
@@ -89,6 +100,12 @@ function seleccionarAsignatura(btn) {
             addSeleccionada(sigla, asignaturaData);
             actualizarHorario();
             actualizarBotones(sigla, seccion);
+            
+            // Toast de reemplazo
+            mostrarNotificacion(
+                `${nombre} (Sec. ${seccion}) agregada`, 
+                'success'
+            );
         });
 
         mostrarModalConfirmacion(
@@ -101,6 +118,12 @@ function seleccionarAsignatura(btn) {
     addSeleccionada(sigla, asignaturaData);
     actualizarHorario();
     actualizarBotones(sigla, seccion);
+
+    // Toast de nueva asignatura
+    mostrarNotificacion(
+        `${nombre} (Sec. ${seccion}) agregada`, 
+        'success'
+    );
 }
 
 function actualizarBotones(sigla, seccionSeleccionada) {
@@ -161,7 +184,8 @@ function inicializarListeners() {
     }
 
     // === Acciones en Asignaturas Seleccionadas (delegación) ===
-    const seleccionadasDiv = document.getElementById('seleccionadas-container');
+    // (Esta sección usa el ID del contenedor definido en lista_asignaturas.html)
+    const seleccionadasDiv = document.getElementById('seleccionadas-container'); 
     if (seleccionadasDiv) {
         seleccionadasDiv.addEventListener('click', e => {
             // Quitar asignatura
@@ -175,7 +199,8 @@ function inicializarListeners() {
             const botonDetalles = e.target.closest('button[data-accion="ver-detalles-asignatura"]');
             if (botonDetalles) {
                 const sigla = botonDetalles.dataset.sigla;
-                const detalleDiv = document.querySelector(`.detalle-horarios[data-sigla="${sigla}"]`);
+                // Buscamos el div de detalles DENTRO del contenedor de seleccionadas
+                const detalleDiv = seleccionadasDiv.querySelector(`.detalle-horarios[data-sigla="${sigla}"]`);
                 
                 if (detalleDiv) {
                     const estaOculto = detalleDiv.classList.contains('hidden');
