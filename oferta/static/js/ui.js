@@ -88,71 +88,197 @@ function renderClases(horarioBase) {
 }
 
 // ==================================================
-//         FUNCIÓN: generarHTMLSeleccionadas (Modificada)
+//         FUNCIÓN: generarHTMLSeleccionadas (MEJORADA)
 // ==================================================
 function generarHTMLSeleccionadas() {
     const seleccionadas = getSeleccionadas();
+    const cantidad = Object.keys(seleccionadas).length;
 
-    // Mapea las asignaturas seleccionadas a "pills"
+    // Si no hay asignaturas seleccionadas
+    if (cantidad === 0) {
+        return `
+            <div class="bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-sm rounded-2xl border border-gray-700/50 shadow-xl overflow-hidden">
+                <!-- Header -->
+                <div class="bg-gradient-to-r from-blue-600/20 to-purple-600/20 border-b border-gray-700/50 p-5">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-semibold text-white flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                            </svg>
+                            Mis Asignaturas
+                        </h3>
+                        <span class="px-2.5 py-1 bg-gray-700/50 text-gray-400 text-xs font-medium rounded-full">
+                            0
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Empty State -->
+                <div class="p-8 text-center">
+                    <div class="inline-flex items-center justify-center w-16 h-16 bg-gray-800/50 rounded-full mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                        </svg>
+                    </div>
+                    <p class="text-gray-400 text-sm">No has seleccionado ninguna asignatura</p>
+                    <p class="text-gray-500 text-xs mt-1">Haz clic en "Agregar" para comenzar</p>
+                </div>
+            </div>
+        `;
+    }
+
+    // Si hay asignaturas seleccionadas
     const items = Object.entries(seleccionadas).map(([sigla, datos]) => `
-        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 text-white rounded-full text-sm font-medium transition-colors shadow-sm">
-            
-            <span>${datos.seccion}</span>
-            
-            <button 
-                data-accion="quitar-asignatura" 
-                data-sigla="${sigla}" 
-                class="text-blue-200 hover:text-white transition-colors"
-                title="Quitar ${datos.nombre} (${datos.seccion})">
-                
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
-                </svg>
-            </button>
-        </span>
-    `).join(''); // Fin del .map()
+        <div class="group relative bg-gradient-to-br from-blue-600/10 to-purple-600/10 hover:from-blue-600/20 hover:to-purple-600/20 rounded-xl p-3 border border-blue-500/20 hover:border-blue-500/40 transition-all duration-200">
+            <div class="flex items-center justify-between gap-3">
+                <!-- Info Principal (Pill) -->
+                <div class="flex items-center gap-2 flex-1 min-w-0">
+                    <span class="px-2.5 py-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-xs font-bold rounded-lg shadow-sm whitespace-nowrap">
+                        ${datos.seccion}
+                    </span>
+                    ${datos.virtual ? `
+                        <span class="px-2 py-0.5 bg-green-600/20 text-green-400 text-xs font-medium rounded border border-green-500/30 whitespace-nowrap">
+                            Virtual
+                        </span>
+                    ` : ''}
+                </div>
 
-    // Contenedor de las pills (en lugar del <ul>)
-    // Mantenemos el ID 'lista-seleccionadas' para que la delegación de eventos de main.js funcione
-    const container = `
-        <div class="flex flex-wrap gap-x-2 gap-y-3" id="lista-seleccionadas">
-            ${items || `<p class="px-1 py-1 text-gray-400 text-sm italic">No hay asignaturas seleccionadas</p>`}
+                <!-- Botones de Acción -->
+                <div class="flex items-center gap-1">
+                    <!-- Botón Ver Detalles -->
+                    <button 
+                        data-accion="ver-detalles-asignatura" 
+                        data-sigla="${sigla}"
+                        class="p-1.5 bg-gray-700/50 hover:bg-blue-600 text-gray-400 hover:text-white rounded-lg transition-all duration-200"
+                        title="Ver horarios de ${datos.nombre}">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                    </button>
+
+                    <!-- Botón Eliminar -->
+                    <button 
+                        data-accion="quitar-asignatura" 
+                        data-sigla="${sigla}" 
+                        class="p-1.5 bg-gray-700/50 hover:bg-red-600 text-gray-400 hover:text-white rounded-lg transition-all duration-200"
+                        title="Eliminar ${datos.nombre}">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Detalles Expandibles (Ocultos por defecto) -->
+            <div class="detalle-horarios hidden mt-3 pt-3 border-t border-gray-700/30 space-y-1" data-sigla="${sigla}">
+                ${datos.horarios.map(h => `
+                    <div class="flex items-center gap-2 text-xs">
+                        <span class="px-2 py-0.5 bg-gray-700/50 text-gray-300 rounded font-medium min-w-[55px] text-center">
+                            ${h.dia.slice(0, 3)}
+                        </span>
+                        <span class="text-gray-400">
+                            ${h.inicio} - ${h.fin}
+                        </span>
+                    </div>
+                `).join('')}
+            </div>
         </div>
-    `;
+    `).join('');
 
-    // Retorna el bloque HTML completo
     return `
-        <h5 class="text-xl font-semibold mb-4 text-white">Asignaturas seleccionadas</h5>
-        <div class="bg-gray-900 p-4 rounded-2xl border border-gray-700 shadow-inner">
-            ${container}
+        <div class="bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-sm rounded-2xl border border-gray-700/50 shadow-xl overflow-hidden">
+            <!-- Header con contador -->
+            <div class="bg-gradient-to-r from-blue-600/20 to-purple-600/20 border-b border-gray-700/50 p-5">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-semibold text-white flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                        </svg>
+                        Mis Asignaturas
+                    </h3>
+                    <span class="px-3 py-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-xs font-bold rounded-full shadow-lg">
+                        ${cantidad}
+                    </span>
+                </div>
+            </div>
+
+            <!-- Lista de asignaturas -->
+            <div class="p-4 space-y-3 max-h-[600px] overflow-y-auto custom-scrollbar">
+                ${items}
+            </div>
         </div>
+
+        <style>
+            .custom-scrollbar::-webkit-scrollbar {
+                width: 8px;
+            }
+            .custom-scrollbar::-webkit-scrollbar-track {
+                background: rgba(17, 24, 39, 0.5);
+                border-radius: 4px;
+            }
+            .custom-scrollbar::-webkit-scrollbar-thumb {
+                background: rgba(59, 130, 246, 0.5);
+                border-radius: 4px;
+            }
+            .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+                background: rgba(59, 130, 246, 0.7);
+            }
+        </style>
     `;
 }
 
 
+// ==================================================
+//         FUNCIÓN: generarHTMLHorario (Mejorado)
+// ==================================================
 function generarHTMLHorario(horarioBase) {
     const horas = generarHoras('08:30', '23:00');
     const rowHeightPx = 50;
 
     return `
-        <div class="mb-6">${generarHTMLSeleccionadas()}</div>
-        <div class="mb-4">
-            <h5 class="text-xl font-semibold mb-2">Horario semanal</h5>
-            <div class="relative overflow-x-auto max-h-[500px] overflow-y-auto border border-gray-700 rounded-lg shadow" id="horario-container">
+        <div class="mb-6">
+            <!-- Header del Horario -->
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-2xl font-bold text-white flex items-center gap-3">
+                    <div class="p-2 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                    </div>
+                    Horario Semanal
+                </h2>
+            </div>
+
+            <!-- Tabla del Horario -->
+            <div class="relative overflow-x-auto max-h-[600px] overflow-y-auto border border-gray-700/50 rounded-2xl shadow-2xl bg-gray-900/50 backdrop-blur-sm" id="horario-container">
                 <table class="min-w-full text-sm text-white border-separate border-spacing-0">
-                    <thead class="bg-gray-800 text-xs uppercase text-gray-400 sticky top-0 z-10">
+                    <thead class="bg-gradient-to-r from-gray-800 to-gray-900 text-xs uppercase text-gray-400 sticky top-0 z-10 shadow-lg">
                         <tr>
-                            <th class="px-4 py-2 sticky left-0 bg-gray-800 z-20 w-20">Hora</th>
-                            ${dias.map(d => `<th class="px-4 py-2 text-center"><div class="min-w-[120px]">${d}</div></th>`).join('')}
+                            <th class="px-4 py-3 sticky left-0 bg-gradient-to-r from-gray-800 to-gray-900 z-20 w-20 border-r border-gray-700/50">
+                                <div class="flex items-center justify-center gap-1">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    Hora
+                                </div>
+                            </th>
+                            ${dias.map(d => `
+                                <th class="px-4 py-3 text-center border-l border-gray-700/30">
+                                    <div class="min-w-[120px] font-semibold">${d}</div>
+                                </th>
+                            `).join('')}
                         </tr>
                     </thead>
-                    <tbody class="bg-gray-900">
-                        ${horas.map(h => `
-                            <tr>
-                                <td class="h-[${rowHeightPx}px] px-4 py-2 border-r border-gray-700 sticky left-0 bg-gray-900 z-10 align-top">
-                                    ${h || '<div class="h-full border-t border-gray-700 border-dotted"></div>'}
+                    <tbody class="bg-gray-900/80">
+                        ${horas.map((h, idx) => `
+                            <tr class="hover:bg-gray-800/30 transition-colors">
+                                <td class="h-[${rowHeightPx}px] px-4 py-2 border-r border-gray-700/50 sticky left-0 bg-gray-900/90 backdrop-blur-sm z-10 align-top font-medium text-gray-400">
+                                    ${h || '<div class="h-full border-t border-gray-700/30 border-dotted"></div>'}
                                 </td>
-                                ${dias.map(() => `<td class="h-[${rowHeightPx}px] border-l border-b border-gray-700"></td>`).join('')}
+                                ${dias.map(() => `
+                                    <td class="h-[${rowHeightPx}px] border-l border-b border-gray-700/20 ${idx % 2 === 0 ? 'bg-gray-800/10' : ''}"></td>
+                                `).join('')}
                             </tr>
                         `).join('')}
                     </tbody>
@@ -163,6 +289,9 @@ function generarHTMLHorario(horarioBase) {
     `;
 }
 
+// ==================================================
+//         FUNCIÓN: actualizarHorario
+// ==================================================
 export function actualizarHorario() {
     const seleccionadas = getSeleccionadas();
     const horarioBase = Object.fromEntries(dias.map(d => [d, []]));
@@ -176,6 +305,13 @@ export function actualizarHorario() {
         });
     }
 
+    // 1. Actualiza el contenedor de asignaturas seleccionadas
+    const seleccionadasContainer = document.getElementById('seleccionadas-container');
+    if (seleccionadasContainer) {
+        seleccionadasContainer.innerHTML = generarHTMLSeleccionadas();
+    }
+
+    // 2. Actualiza el contenedor del horario
     const horarioContainer = document.getElementById('horario');
     if (horarioContainer) {
         horarioContainer.innerHTML = generarHTMLHorario(horarioBase);
