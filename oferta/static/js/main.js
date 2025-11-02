@@ -50,7 +50,7 @@ function quitarAsignatura(sigla) {
 }
 
 function seleccionarAsignatura(btn) {
-    const { sigla, seccion, nombre, id, virtual } = btn.dataset;
+    const { sigla, seccion, nombre, id, virtual, docente } = btn.dataset;
     let horarios;
 
     try {
@@ -79,7 +79,8 @@ function seleccionarAsignatura(btn) {
         nombre,
         seccion,
         horarios,
-        virtual: ['true', 'sí'].includes((virtual || '').toLowerCase())
+        virtual: ['true', 'sí'].includes((virtual || '').toLowerCase()),
+        docente : docente
     };
 
     if (hasAsignaturaSeleccionada(sigla)) {

@@ -71,6 +71,7 @@
                         data-virtual="{{ a.virtual_sincronica }}"
                         data-nombre="{{ a.nombre }}"
                         data-seccion="{{ a.seccion }}"
+                        data-docente="{{ a.docente|default_if_none:'No asignado'}}"
                         data-horarios='[{% for h in a.horarios.all %}{"dia": "{{ h.dia }}", "inicio": "{{ h.hora_inicio|time:"H:i" }}", "fin": "{{ h.hora_fin|time:"H:i" }}"}{% if not forloop.last %},{% endif %}{% endfor %}]'
                         aria-label="Agregar {{ a.nombre }} sección {{ a.seccion }}">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -127,6 +128,7 @@
                         data-virtual="{{ a.virtual_sincronica }}"
                         data-nombre="{{ a.nombre }}"
                         data-seccion="{{ a.seccion }}"
+                        data-docente="{{ a.docente|default_if_none:'No asignado'}}"
                         data-horarios='[{% for h in a.horarios.all %}{"dia": "{{ h.dia }}", "inicio": "{{ h.hora_inicio|time:"H:i" }}", "fin": "{{ h.hora_fin|time:"H:i" }}"}{% if not forloop.last %},{% endif %}{% endfor %}]'
                         aria-label="Agregar {{ a.nombre }}">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">

@@ -88,17 +88,16 @@ function renderClases(horarioBase) {
 }
 
 // ==================================================
-//         FUNCIÓN: generarHTMLSeleccionadas (MEJORADA)
+//         FUNCIÓN: generarHTMLSeleccionadas (MODIFICADA)
 // ==================================================
 function generarHTMLSeleccionadas() {
     const seleccionadas = getSeleccionadas();
     const cantidad = Object.keys(seleccionadas).length;
 
-    // Si no hay asignaturas seleccionadas
+    // Si no hay asignaturas seleccionadas (Sin cambios)
     if (cantidad === 0) {
         return `
             <div class="bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-sm rounded-2xl border border-gray-700/50 shadow-xl overflow-hidden">
-                <!-- Header -->
                 <div class="bg-gradient-to-r from-blue-600/20 to-purple-600/20 border-b border-gray-700/50 p-5">
                     <div class="flex items-center justify-between">
                         <h3 class="text-lg font-semibold text-white flex items-center gap-2">
@@ -113,7 +112,6 @@ function generarHTMLSeleccionadas() {
                     </div>
                 </div>
 
-                <!-- Empty State -->
                 <div class="p-8 text-center">
                     <div class="inline-flex items-center justify-center w-16 h-16 bg-gray-800/50 rounded-full mb-4">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -131,21 +129,14 @@ function generarHTMLSeleccionadas() {
     const items = Object.entries(seleccionadas).map(([sigla, datos]) => `
         <div class="group relative bg-gradient-to-br from-blue-600/10 to-purple-600/10 hover:from-blue-600/20 hover:to-purple-600/20 rounded-xl p-3 border border-blue-500/20 hover:border-blue-500/40 transition-all duration-200">
             <div class="flex items-center justify-between gap-3">
-                <!-- Info Principal (Pill) -->
                 <div class="flex items-center gap-2 flex-1 min-w-0">
                     <span class="px-2.5 py-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-xs font-bold rounded-lg shadow-sm whitespace-nowrap">
                         ${datos.seccion}
                     </span>
-                    ${datos.virtual ? `
-                        <span class="px-2 py-0.5 bg-green-600/20 text-green-400 text-xs font-medium rounded border border-green-500/30 whitespace-nowrap">
-                            Virtual
-                        </span>
-                    ` : ''}
-                </div>
+                    
+                    </div>
 
-                <!-- Botones de Acción -->
                 <div class="flex items-center gap-1">
-                    <!-- Botón Ver Detalles -->
                     <button 
                         data-accion="ver-detalles-asignatura" 
                         data-sigla="${sigla}"
@@ -157,7 +148,6 @@ function generarHTMLSeleccionadas() {
                         </svg>
                     </button>
 
-                    <!-- Botón Eliminar -->
                     <button 
                         data-accion="quitar-asignatura" 
                         data-sigla="${sigla}" 
@@ -170,8 +160,26 @@ function generarHTMLSeleccionadas() {
                 </div>
             </div>
 
-            <!-- Detalles Expandibles (Ocultos por defecto) -->
-            <div class="detalle-horarios hidden mt-3 pt-3 border-t border-gray-700/30 space-y-1" data-sigla="${sigla}">
+            <div class="detalle-horarios hidden mt-3 pt-3 border-t border-gray-700/30 space-y-2" data-sigla="${sigla}">
+                
+                <div class="text-sm font-semibold text-white">${datos.nombre}</div>
+                
+                ${(datos.docente && datos.docente.toLowerCase() !== 'nan') ? `
+                    <div class="text-xs text-gray-400">${datos.docente}</div>
+                ` : ''}
+
+                ${datos.virtual ? `
+                    <div class="text-xs text-green-400 font-medium pt-1">
+                        Modalidad: Virtual Sincrónica
+                    </div>
+                ` : `
+                    <div class="text-xs text-gray-400 font-medium pt-1">
+                        Modalidad: Presencial
+                    </div>
+                `}
+                
+                <div class="pt-2"></div> 
+
                 ${datos.horarios.map(h => `
                     <div class="flex items-center gap-2 text-xs">
                         <span class="px-2 py-0.5 bg-gray-700/50 text-gray-300 rounded font-medium min-w-[55px] text-center">
@@ -186,9 +194,9 @@ function generarHTMLSeleccionadas() {
         </div>
     `).join('');
 
+    // HTML del contenedor (Sin cambios)
     return `
         <div class="bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-sm rounded-2xl border border-gray-700/50 shadow-xl overflow-hidden">
-            <!-- Header con contador -->
             <div class="bg-gradient-to-r from-blue-600/20 to-purple-600/20 border-b border-gray-700/50 p-5">
                 <div class="flex items-center justify-between">
                     <h3 class="text-lg font-semibold text-white flex items-center gap-2">
@@ -203,8 +211,7 @@ function generarHTMLSeleccionadas() {
                 </div>
             </div>
 
-            <!-- Lista de asignaturas -->
-            <div class="p-4 space-y-3 max-h-[600px] overflow-y-auto custom-scrollbar">
+            <div class="p-4 space-y-3 max-h-[600px] overflow-y-auto custom-scrollbar" id="lista-seleccionadas">
                 ${items}
             </div>
         </div>
