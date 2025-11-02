@@ -87,27 +87,45 @@ function renderClases(horarioBase) {
     }, 0);
 }
 
+// ==================================================
+//         FUNCIÓN: generarHTMLSeleccionadas (Modificada)
+// ==================================================
 function generarHTMLSeleccionadas() {
     const seleccionadas = getSeleccionadas();
-    const items = Object.entries(seleccionadas).map(([sigla, datos]) => `
-        <li class="flex justify-between items-center px-4 py-3 bg-gray-800 rounded-lg mb-2 hover:bg-gray-700 transition-colors shadow-sm">
-            <div class="flex flex-col">
-                <span class="font-medium text-white">${datos.nombre} (${datos.seccion})</span>
-                ${datos.virtual ? '<span class="text-green-400 text-sm mt-1">Virtual sincrónica</span>' : ''}
-            </div>
-            <button data-accion="quitar-asignatura" data-sigla="${sigla}" 
-                    class="p-2 text-red-500 hover:text-red-400 rounded-full transition-colors"
-                    title="Quitar asignatura">
-                ${iconoEquis}
-            </button>
-        </li>
-    `).join('');
 
+    // Mapea las asignaturas seleccionadas a "pills"
+    const items = Object.entries(seleccionadas).map(([sigla, datos]) => `
+        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 text-white rounded-full text-sm font-medium transition-colors shadow-sm">
+            
+            <span>${datos.seccion}</span>
+            
+            <button 
+                data-accion="quitar-asignatura" 
+                data-sigla="${sigla}" 
+                class="text-blue-200 hover:text-white transition-colors"
+                title="Quitar ${datos.nombre} (${datos.seccion})">
+                
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </span>
+    `).join(''); // Fin del .map()
+
+    // Contenedor de las pills (en lugar del <ul>)
+    // Mantenemos el ID 'lista-seleccionadas' para que la delegación de eventos de main.js funcione
+    const container = `
+        <div class="flex flex-wrap gap-x-2 gap-y-3" id="lista-seleccionadas">
+            ${items || `<p class="px-1 py-1 text-gray-400 text-sm italic">No hay asignaturas seleccionadas</p>`}
+        </div>
+    `;
+
+    // Retorna el bloque HTML completo
     return `
         <h5 class="text-xl font-semibold mb-4 text-white">Asignaturas seleccionadas</h5>
-        <ul class="bg-gray-900 p-4 rounded-2xl border border-gray-700 shadow-inner overflow-hidden" id="lista-seleccionadas">
-            ${items || `<li class="px-4 py-3 text-gray-400 text-center">No hay asignaturas seleccionadas</li>`}
-        </ul>
+        <div class="bg-gray-900 p-4 rounded-2xl border border-gray-700 shadow-inner">
+            ${container}
+        </div>
     `;
 }
 
