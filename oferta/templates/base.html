@@ -18,27 +18,27 @@
          onclick="toggleSidebar()">
     </div>
 
-    <!-- SIDEBAR LATERAL -->
+    <!-- SIDEBAR -->
     <aside id="sidebar" 
-           class="fixed top-0 left-0 h-screen w-72 bg-gray-950/80 backdrop-blur-xl border-r border-gray-700/50 z-50 lg:translate-x-0 -translate-x-full transition-transform duration-300 ease-in-out shadow-2xl">
+           class="fixed top-0 left-0 h-screen w-72 bg-gray-950/80 backdrop-blur-xl border-r border-gray-700/50 z-50 lg:translate-x-0 -translate-x-full transition-transform duration-300 ease-in-out shadow-2xl flex flex-col">
         
-        <!-- Header del Sidebar -->
+        <!-- HEADER DEL SIDEBAR -->
         <div class="flex items-center justify-between p-6 border-b border-gray-700/50">
             <div class="flex items-center gap-3">
                 <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center shadow-lg">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
                 </div>
                 <div>
-                    <h1 class="text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                    <h1 class="text-xl font-bold">
                         MiHorario
                     </h1>
-                    <p class="text-xs text-gray-400">Duoc UC</p>
                 </div>
             </div>
             
-            <!-- Botón cerrar (solo móvil) -->
+            <!-- BOTÓN CERRAR (MÓVIL) -->
             <button onclick="toggleSidebar()" 
                     class="lg:hidden p-2 hover:bg-gray-700/50 rounded-lg transition-colors duration-200">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -47,19 +47,16 @@
             </button>
         </div>
 
-        <!-- Navegación -->
-        <nav class="flex-1 p-4 space-y-2 overflow-y-auto max-h-[calc(100vh-200px)] scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-gray-900">
+        <!-- NAVEGACIÓN -->
+        <nav class="flex-1 p-4 space-y-2 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-gray-900">
             
-            <!-- Sección: Principal -->
+            <!-- PRINCIPAL -->
             <div class="mb-6">
-                <p class="px-4 mb-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                    Principal
-                </p>
-                
                 <a href="{% url 'inicio' %}" 
                    class="flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 {% if request.resolver_match.url_name == 'inicio' %}bg-blue-600/20 text-blue-400{% else %}text-gray-300 hover:bg-blue-600/10 hover:text-blue-400{% endif %}">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                     </svg>
                     <span class="font-medium">Inicio</span>
                 </a>
@@ -68,59 +65,65 @@
                 <a href="{% url 'lista_asignaturas' %}?sede={{ request.GET.sede }}" 
                    class="flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 {% if request.resolver_match.url_name == 'lista_asignaturas' %}bg-blue-600/20 text-blue-400{% else %}text-gray-300 hover:bg-blue-600/10 hover:text-blue-400{% endif %}">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                            d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                     </svg>
                     <span class="font-medium">Asignaturas</span>
                 </a>
+
+                <button class="btn-abrir-generador w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 text-gray-300 hover:bg-blue-600/10 hover:text-blue-400 text-left">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                            d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                    <span class="font-medium">Generador</span>
+                </button>
                 {% endif %}
-                 <a href="#horario"
-                    class="flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 {% if request.resolver_match.url_name == 'horario' %}bg-blue-600/20 text-blue-400{% else %}text-gray-300 hover:bg-blue-600/10 hover:text-blue-400{% endif %}">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+
+                <a href="#horario"
+                   class="flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 {% if request.resolver_match.url_name == 'horario' %}bg-blue-600/20 text-blue-400{% else %}text-gray-300 hover:bg-blue-600/10 hover:text-blue-400{% endif %}">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
                             d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
+                    </svg>
                     <span class="font-medium">Horario</span>
                 </a>
             </div>
 
-            <!-- Sección: Admin (solo superusuarios) -->
+            <!-- ADMIN -->
             {% if user.is_superuser %}
             <div class="mb-6">
-                <p class="px-4 mb-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                    Administración
-                </p>
-                
+                <p class="px-4 mb-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">Administración</p>
                 <a href="{% url 'cargar_excel' %}" 
-                   class="flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 {% if request.resolver_match.url_name == 'cargar_excel' %}bg-purple-600/20 text-purple-400{% else %}text-gray-300 hover:bg-purple-600/10 hover:text-purple-400{% endif %}">
+                    class="flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 {% if request.resolver_match.url_name == 'cargar_excel' %}bg-purple-600/20 text-purple-400{% else %}text-gray-300 hover:bg-purple-600/10 hover:text-purple-400{% endif %}">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                            d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                     </svg>
                     <span class="font-medium">Cargar Excel</span>
                 </a>
             </div>
             {% endif %}
-
         </nav>
 
-        <!-- Footer del Sidebar (Usuario) -->
-        <div class="border-t border-gray-700/50 p-4">
+        <!-- USUARIO / SESIÓN -->
+        <div class="p-4 border-t border-gray-700/50 sticky bottom-0 bg-gray-950 backdrop-blur-xl">
             {% if user.is_authenticated %}
-                <div class="flex items-center gap-3 px-2 py-2 rounded-lg bg-gray-800/50">
+                <div class="flex items-center gap-3 px-2 py-2 rounded-lg mb-3">
                     <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center font-bold text-sm flex-shrink-0">
                         {{ user.username|slice:":1"|upper }}
                     </div>
                     <div class="flex-1 min-w-0">
                         <p class="text-sm font-medium text-white truncate">{{ user.username }}</p>
-                        <p class="text-xs text-gray-400">Estudiante</p>
                     </div>
                 </div>
-                
-                <form method="post" action="{% url 'logout' %}" class="mt-3">
+                <form method="post" action="{% url 'logout' %}">
                     {% csrf_token %}
                     <button type="submit" 
                             class="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-red-600/10 hover:bg-red-600/20 text-red-400 rounded-lg transition-colors duration-200 font-medium">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                         </svg>
                         Cerrar Sesión
                     </button>
@@ -128,43 +131,45 @@
             {% else %}
                 <div class="space-y-2">
                     <a href="{% url 'login' %}" 
-                       class="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200 font-medium">
+                        class="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200 font-medium">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
                         </svg>
                         Iniciar Sesión
                     </a>
-                    
                     <a href="{% url 'registro' %}" 
-                       class="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors duration-200 font-medium">
+                        class="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors duration-200 font-medium">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
                         </svg>
                         Registrarse
                     </a>
                 </div>
             {% endif %}
         </div>
-
     </aside>
 
     <!-- CONTENIDO PRINCIPAL -->
     <div class="lg:ml-72 min-h-screen flex flex-col">
-        
-        <!-- TOPBAR (solo móvil) -->
+
+        <!-- TOPBAR MÓVIL -->
         <header class="lg:hidden sticky top-0 z-30 bg-gray-950/80 backdrop-blur-xl border-b border-gray-700/50 px-4 py-3">
             <div class="flex items-center justify-between">
                 <button onclick="toggleSidebar()" 
                         class="p-2 hover:bg-gray-700/50 rounded-lg transition-colors duration-200">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                            d="M4 6h16M4 12h16M4 18h16" />
                     </svg>
                 </button>
                 
                 <div class="flex items-center gap-2">
                     <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                         </svg>
                     </div>
                     <span class="font-bold text-lg">MiHorario</span>
@@ -182,24 +187,19 @@
         <!-- FOOTER -->
         <footer class="text-center text-sm text-gray-500 py-6 space-y-2 border-t border-gray-800/50">
             <p>
-                <strong class="text-white">MiHorario</strong> — Desarrollado por
+                <strong class="text-white">MiHorario</strong> — Desarrollado por 
                 <span class="text-white font-medium">Vicente Canio</span>
             </p>
-            <p>
-                Proyecto para estudiantes de <span class="text-blue-400 font-semibold">Duoc UC</span>
-            </p>
+            <p>Proyecto para estudiantes de <span class="text-blue-400 font-semibold">Duoc UC</span></p>
         </footer>
-
     </div>
 
-    <!-- SCRIPTS -->
+    <!-- JS SIDEBAR + MODAL -->
     <script>
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             const overlay = document.getElementById('sidebar-overlay');
-            
             sidebar.classList.toggle('-translate-x-full');
-            
             if (overlay.classList.contains('hidden')) {
                 overlay.classList.remove('hidden');
                 setTimeout(() => overlay.classList.remove('opacity-0'), 10);
@@ -209,36 +209,25 @@
             }
         }
 
-        // Cerrar sidebar al hacer clic en un link (solo móvil)
-        document.querySelectorAll('#sidebar a').forEach(link => {
-            link.addEventListener('click', () => {
-                if (window.innerWidth < 1024) {
-                    toggleSidebar();
-                }
+        // Smooth scroll para anchors internos
+        document.querySelectorAll('a[href^="#"]').forEach(a=>{
+            a.addEventListener('click',e=>{
+                const t=document.querySelector(a.getAttribute('href'));
+                if(t){e.preventDefault();t.scrollIntoView({behavior:"smooth"})}
             });
         });
-
-        // Cerrar sidebar al redimensionar a desktop
-        window.addEventListener('resize', () => {
-            if (window.innerWidth >= 1024) {
-                const sidebar = document.getElementById('sidebar');
-                const overlay = document.getElementById('sidebar-overlay');
-                sidebar.classList.remove('-translate-x-full');
-                overlay.classList.add('opacity-0');
-                overlay.classList.add('hidden');
-            }
-        });
-
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function (e) {
-        const target = document.querySelector(this.getAttribute('href'));
-        if (target) {
-            e.preventDefault();
-            target.scrollIntoView({ behavior: 'smooth' });
-        }
-    });
-});
     </script>
 
+    {% if request.GET.sede %}
+    <script type="module">
+        import { initGeneradorModal, abrirModalGenerador } from '{% static "js/generadorModal.js" %}';
+        document.addEventListener('DOMContentLoaded', () => {
+            initGeneradorModal();
+            document.querySelectorAll('.btn-abrir-generador').forEach(btn =>
+                btn.addEventListener('click', abrirModalGenerador)
+            );
+        });
+    </script>
+    {% endif %}
 </body>
 </html>
