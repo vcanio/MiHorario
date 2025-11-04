@@ -15,6 +15,11 @@
         <form method="post" action="{% url 'registro' %}" class="flex flex-col gap-6">
             {% csrf_token %}
             
+            <!-- NUEVO: Campo oculto 'next' para preservar contexto en POST -->
+            {% if request.GET.next %}
+                <input type="hidden" name="next" value="{{ request.GET.next }}">
+            {% endif %}
+            
             {% if form.errors %}
                 <div class="bg-red-900 text-red-200 p-3 border border-red-600 rounded-md text-sm">
                     <p>Por favor corrige los errores:</p>

@@ -6,6 +6,7 @@ Vistas de autenticación y registro de usuarios
 from django.shortcuts import render, redirect
 from django.contrib.auth import login
 from django.contrib import messages
+from django.http import QueryDict
 
 from ..forms import RegistroForm
 
@@ -14,6 +15,7 @@ def registro(request):
     """
     Registro de nuevos usuarios.
     Ya NO inicia sesión automáticamente - el usuario debe hacer login manualmente.
+    Preserva el parámetro 'next' para mantener el contexto después del login.
     """
     if request.method == 'POST':
         form = RegistroForm(request.POST)
@@ -26,8 +28,12 @@ def registro(request):
                 f'¡Cuenta creada exitosamente! Ya puedes iniciar sesión con tu usuario "{user.username}".'
             )
             
-            # Redirigir al login (sin iniciar sesión automáticamente)
-            return redirect('login')
+            # NUEVO: Preservar el parámetro 'next' al redirigir al login
+            next_url = request.GET.get('next') or request.POST.get('next')
+            if next_url:
+                return redirect(f"/login/?next={next_url}")
+            else:
+                return redirect('login')
     else:
         form = RegistroForm()
 
