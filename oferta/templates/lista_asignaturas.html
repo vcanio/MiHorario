@@ -112,8 +112,9 @@
         <div>
             <p class="text-white font-medium">¿Quieres guardar tus horarios?</p>
             <p class="text-gray-400 text-sm">
-                <a href="{% url 'login' %}" class="text-blue-400 hover:text-blue-300 underline">Inicia sesión</a> o 
-                <a href="{% url 'registro' %}" class="text-blue-400 hover:text-blue-300 underline">regístrate</a> para guardar y gestionar múltiples horarios.
+                <!-- NUEVO: Añadimos ?next={{ request.get_full_path }} -->
+                <a href="{% url 'login' %}?next={{ request.get_full_path|urlencode }}" class="text-blue-400 hover:text-blue-300 underline">Inicia sesión</a> o 
+                <a href="{% url 'registro' %}?next={{ request.get_full_path|urlencode }}" class="text-blue-400 hover:text-blue-300 underline">regístrate</a> para guardar y gestionar múltiples horarios.
             </p>
         </div>
     </div>

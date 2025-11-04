@@ -11,9 +11,25 @@
         </p>
     </header>
 
+    <!-- NUEVO: Mostrar mensajes de Django (ej: registro exitoso) -->
+    {% if messages %}
+        <div class="mb-6 space-y-3">
+            {% for message in messages %}
+                <div class="{% if message.tags == 'success' %}bg-green-900 border-green-600 text-green-200{% elif message.tags == 'error' %}bg-red-900 border-red-600 text-red-200{% else %}bg-blue-900 border-blue-600 text-blue-200{% endif %} p-4 border rounded-lg text-sm">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
     <section class="bg-gray-800 p-8 rounded-2xl shadow-2xl border border-gray-700 mb-12">
         <form method="post" action="{% url 'login' %}" class="flex flex-col gap-6">
             {% csrf_token %}
+            
+            <!-- NUEVO: Campo oculto 'next' para mantener contexto -->
+            {% if request.GET.next %}
+                <input type="hidden" name="next" value="{{ request.GET.next }}">
+            {% endif %}
             
             {% if form.non_field_errors %}
                 <div class="bg-red-900 text-red-200 p-3 border border-red-600 rounded-md text-sm">
@@ -44,7 +60,9 @@
 
     <p class="text-center text-gray-400">
         ¿No tienes una cuenta? 
-        <a href="{% url 'registro' %}" class="font-medium text-blue-400 hover:text-blue-300">
+        <!-- NUEVO: Mantener 'next' en el enlace de registro -->
+        <a href="{% url 'registro' %}{% if request.GET.next %}?next={{ request.GET.next|urlencode }}{% endif %}" 
+           class="font-medium text-blue-400 hover:text-blue-300">
             Regístrate aquí
         </a>
     </p>

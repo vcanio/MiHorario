@@ -1,7 +1,6 @@
-# horario/urls.py - Actualización completa
+# horario/urls.py
 from django.contrib import admin
-from django.urls import path, include
-from django.shortcuts import redirect
+from django.urls import path
 from oferta import views
 from django.contrib.auth import views as auth_views
 
@@ -18,9 +17,11 @@ urlpatterns = [
     path('api/generador/asignaturas/', views.api_asignaturas_generador, name='api_asignaturas_generador'),
     path('api/generador/generar/', views.api_generar_horarios, name='api_generar_horarios'),
 
-    # --- AUTENTICACIÓN ---
+    # --- AUTENTICACIÓN (MEJORADO) ---
     path('login/', auth_views.LoginView.as_view(
-        template_name='registration/login.html'
+        template_name='registration/login.html',
+        # Si hay un parámetro 'next', redirige ahí; si no, a 'inicio'
+        redirect_authenticated_user=True  # Evita que usuarios logueados accedan al login
     ), name='login'),
 
     path('logout/', auth_views.LogoutView.as_view(

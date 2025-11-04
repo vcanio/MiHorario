@@ -34,7 +34,8 @@
             {% for field in form %}
             <div>
                 <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-300 mb-2">{{ field.label }}</label>
-                {{ field }} {% if field.help_text %}
+                {{ field }} 
+                {% if field.help_text %}
                     <p class="text-xs text-gray-400 mt-1">{{ field.help_text|safe }}</p>
                 {% endif %}
             </div>
@@ -49,7 +50,9 @@
 
     <p class="text-center text-gray-400">
         ¿Ya tienes una cuenta? 
-        <a href="{% url 'login' %}" class="font-medium text-blue-400 hover:text-blue-300">
+        <!-- NUEVO: Mantener 'next' si viene del registro -->
+        <a href="{% url 'login' %}{% if request.GET.next %}?next={{ request.GET.next|urlencode }}{% endif %}" 
+           class="font-medium text-blue-400 hover:text-blue-300">
             Inicia sesión aquí
         </a>
     </p>
