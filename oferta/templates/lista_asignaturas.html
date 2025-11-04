@@ -18,29 +18,33 @@
 
 <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mt-6">
 
-    <div class="lg:col-span-9">
-        
-        <div class="bg-gray-900/50 backdrop-blur-sm rounded-2xl border border-gray-700/50 shadow-xl overflow-hidden">
-        
-            <div class="p-6 border-b border-gray-700/50">
+    <div class="lg:col-span-9 space-y-6"> <div class="bg-gray-900/50 backdrop-blur-sm rounded-2xl border border-gray-700/50 shadow-xl">
+            <div class="p-6">
+                <h3 class="text-lg font-semibold text-white mb-5 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                    Filtros de Búsqueda
+                </h3>
                 {% include "includes/filtros.html" %}
             </div>
-
-            {% include "includes/tabla_asignaturas.html" %}
-        
         </div>
+        <div class="bg-gray-900/50 backdrop-blur-sm rounded-2xl border border-gray-700/50 shadow-xl overflow-hidden">
+            {% include "includes/tabla_asignaturas.html" %}
+        </div>
+    
     </div>
 
     <div class="lg:col-span-3">
-        
         <div class="lg:sticky lg:top-6">
             <div id="seleccionadas-container">
                 </div>
         </div>
-
     </div>
 
-</div> <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+</div> 
+
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
     <div class="lg:col-span-9">
         
         <nav class="mt-6 flex flex-wrap justify-center items-center gap-3">
@@ -112,7 +116,6 @@
         <div>
             <p class="text-white font-medium">¿Quieres guardar tus horarios?</p>
             <p class="text-gray-400 text-sm">
-                <!-- NUEVO: Añadimos ?next={{ request.get_full_path }} -->
                 <a href="{% url 'login' %}?next={{ request.get_full_path|urlencode }}" class="text-blue-400 hover:text-blue-300 underline">Inicia sesión</a> o 
                 <a href="{% url 'registro' %}?next={{ request.get_full_path|urlencode }}" class="text-blue-400 hover:text-blue-300 underline">regístrate</a> para guardar y gestionar múltiples horarios.
             </p>
