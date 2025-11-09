@@ -4,3 +4,6 @@ __pycache__/
 build/
 .env
 staticfiles/
+django.log
+tunnel.log
+cloudflared-linux-amd64.deb
