@@ -171,7 +171,18 @@ def lista_asignaturas(request):
             asignaturas_list.append(a)
 
     # --- Paginación ---
-    paginator = Paginator(asignaturas_list, 10)
+# --- Paginación ---
+    try:
+        # 1. Leer el parámetro 'per_page' de la URL. Default a 5 (móvil/tableta).
+        items_por_pagina = int(request.GET.get('per_page', 5))
+    except ValueError:
+        items_por_pagina = 5
+
+    # 2. Asegurarse que el valor sea 5 u 8
+    if items_por_pagina not in [5, 8]:
+        items_por_pagina = 5
+            
+    paginator = Paginator(asignaturas_list, items_por_pagina)
     page = request.GET.get('page', 1)
     try:
         page_obj = paginator.page(page)

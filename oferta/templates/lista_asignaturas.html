@@ -18,35 +18,34 @@
 
 <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mt-6">
 
-    <div class="lg:col-span-9 space-y-6"> <div class="bg-gray-900/50 backdrop-blur-sm rounded-2xl border border-gray-700/50 shadow-xl">
+    <div class="lg:col-span-9 space-y-6"> 
+        
+        <div class="bg-gray-900/50 backdrop-blur-sm rounded-2xl border border-gray-700/50 shadow-xl">
             <div class="p-6">
-                <h3 class="text-lg font-semibold text-white mb-5 flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
-                    Filtros de Búsqueda
-                </h3>
+                
+                <div class="flex items-center justify-between mb-5">
+                    <h3 class="text-lg font-semibold text-white flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                        Filtros de Búsqueda
+                    </h3>
+                    
+                    <button id="toggle-filtros-btn" class="md:hidden p-2 bg-gray-700/50 hover:bg-gray-700 rounded-lg text-gray-300 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                        </svg>
+                    </button>
+                </div>
+                
                 {% include "includes/filtros.html" %}
             </div>
         </div>
+        
         <div class="bg-gray-900/50 backdrop-blur-sm rounded-2xl border border-gray-700/50 shadow-xl overflow-hidden">
             {% include "includes/tabla_asignaturas.html" %}
         </div>
     
-    </div>
-
-    <div class="lg:col-span-3">
-        <div class="lg:sticky lg:top-6">
-            <div id="seleccionadas-container">
-                </div>
-        </div>
-    </div>
-
-</div> 
-
-<div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-    <div class="lg:col-span-9">
-        
         <nav class="mt-6 flex flex-wrap justify-center items-center gap-3">
             {% if asignaturas.has_previous %}
                 <a href="?{% if request.GET %}{{ request.GET.urlencode }}&{% endif %}page={{ asignaturas.previous_page_number }}"
@@ -82,10 +81,16 @@
                 </span>
             {% endif %}
         </nav>
-        
+        </div>
+
+    <div class="lg:col-span-3">
+        <div class="lg:sticky lg:top-6">
+            <div id="seleccionadas-container">
+                </div>
+        </div>
     </div>
-    <div class="lg:col-span-3"></div>
-</div>
+
+</div> 
 
 
 <div id="horario" class="mt-8 mb-4">
@@ -152,27 +157,58 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script>
     function resetDependientes(campoCambiado) {
-        // 1. Usamos la ID del formulario para evitar errores
+        // ... (Tu función existente, no necesita cambios)
         const form = document.getElementById('filtros-form'); 
-        
-        if (!form) return; // Parar si no se encuentra el formulario
-
-        // 2. Si el usuario cambia la SEDE, reseteamos TODOS los demás filtros
+        if (!form) return; 
         if (campoCambiado === 'sede') {
             if (form.carrera) form.carrera.value = '';
             if (form.jornada) form.jornada.value = '';
             if (form.nivel) form.nivel.value = '';
             if (form.busqueda) form.busqueda.value = '';
         }
-        
-        // 3. Si el usuario cambia CARRERA o NIVEL, reseteamos solo el filtro de asignatura
         if (['carrera', 'nivel'].includes(campoCambiado)) {
             if (form.busqueda) form.busqueda.value = '';
         }
-
-        // 4. Enviamos el formulario. Ahora incluirá el valor de "sede"
-        // (ya que es un campo más del formulario) junto con el campo cambiado.
         form.submit();
     }
 </script>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    
+    // --- NUEVO: JS para el toggle de filtros en móvil ---
+    const toggleBtn = document.getElementById('toggle-filtros-btn');
+    const filtrosForm = document.getElementById('filtros-form'); // El <form> en sí
+    
+    if (toggleBtn && filtrosForm) {
+        toggleBtn.addEventListener('click', function() {
+            // 'hidden' es la clase que oculta el formulario en móvil
+            filtrosForm.classList.toggle('hidden');
+            
+            // Opcional: cambiar la apariencia del botón para indicar que está activo
+            if (filtrosForm.classList.contains('hidden')) {
+                toggleBtn.classList.remove('bg-blue-600/20', 'text-blue-300');
+            } else {
+                toggleBtn.classList.add('bg-blue-600/20', 'text-blue-300');
+            }
+        });
+    }
+
+    // --- JS para paginación responsive (el que implementamos antes) ---
+    const urlParams = new URLSearchParams(window.location.search);
+    const currentPerPage = urlParams.get('per_page');
+    
+    let desiredPerPage = 5; // Default (móvil/tableta)
+    if (window.innerWidth >= 1024) {
+        desiredPerPage = 8; // Desktop
+    }
+    
+    if (String(currentPerPage) !== String(desiredPerPage)) {
+        urlParams.set('per_page', desiredPerPage);
+        window.location.search = urlParams.toString();
+    }
+});
+</script>
+
 {% endblock %}
